@@ -6,6 +6,7 @@ INTERACTION_RULES_BY_HEAD = {}
 INTERACTION_RULES_BY_BODY = {}
 INTERACTION_RULES_BY_HEAD_NAME = {}
 INTERACTION_RULES_BY_BODY_NAME = {}
+ROW_TO_IR = {}
 KEYWORDS_DICT = {}
 TECHNIQUE_DICT = {}
 
@@ -13,7 +14,8 @@ TECHNIQUE_DICT = {}
 def create_ir_dict(dfMulVAl):
     """
     This function creates a dictionary which  {interaction_rule_head: (row_number, ir_body)}
-    This function also creates a dictionary with {interaction_rule_head: ((row_number, ir_head))}
+    And a dictionary with {interaction_rule_head: (row_number, ir_head)}
+    And a dict of {row_number, ir_head}
     :param path: data frame of the given xlsx file
     """
 
@@ -31,6 +33,8 @@ def create_ir_dict(dfMulVAl):
                     ir_head = splited_ir[0][:-1]
                 else:
                     ir_head = splited_ir[0]
+
+            ROW_TO_IR.update({row: ir_head})
 
             if len(splited_ir) >= 2:  # check body
 
