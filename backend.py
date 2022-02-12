@@ -1,3 +1,4 @@
+import re
 
 import DataPreperation as dp
 import pandas as pd
@@ -39,24 +40,33 @@ def search_ir_by_head_name(ir_head_name):
     return dp.INTERACTION_RULES_BY_HEAD_NAME.get(ir_head_name)
 
 
-def create_xml(dfMulVAl, rows):
+def create_xml(dfMulVAl):
     """
     :param dfMulVAl: data frame containing the data from the xlsx file
-    :param rows: list of row numbers to write to the xml file
     :return:
     """
-    root = minidom.Document()
+    doc = minidom.Document()
+    root = doc.createElement('SIRS')
+    doc.appendChild(root)
 
-    xml = root.createElement('SIR')
-    xml.setAttribute('Name', 'Geeks for Geeks')
-    root.appendChild(xml)
+    for row in dp.ROW_TO_IR.keys():
 
-    productChild = root.createElement('product')
-    productChild.setAttribute('name', 'Geeks for Geeks')
+        ir_head = dp.ROW_TO_IR[row]
+        ir_head_parts = re.split("\(|,|\)", ir_head)
+        ir_head_name = ir_head_parts[0]
 
-    xml.appendChild(productChild)
+        if root.firstChild is None:
+            ir = doc.createElement('SIR')
+            ir.setAttribute('Name', ir_head_name)
+            root.appendChild(ir)
+            # parameters = doc.createElement('Parameters')
+            # ir.appendChild(parameters)
+        else:
+            ir = doc.createElement('SIR')
+            ir.setAttribute('Name', ir_head_name)
+            root.insertBefore(ir, root.firstChild)
 
-    xml_str = root.toprettyxml(indent="\t")
+    xml_str = doc.toprettyxml(indent="\t")
 
     save_path_file = "output.xml"
 
@@ -67,8 +77,6 @@ def create_xml(dfMulVAl, rows):
 if __name__ == "__main__":
 
     path = 'C:\\Users\\ADMIN\\Documents\\AttackGraphs\\Attack-GraphsProject\\MulVAL to MITRE-for IR Manager.xlsx'
-    # create_data_structures(path)
-    # print(dp.TECHNIQUE_DICT.keys())
     dfMulVAl = pd.read_excel(path)
-    rows = [i for i in range(dfMulVAl.shape[0])]
-    create_xml(dfMulVAl, rows)
+    create_data_structures(dfMulVAl)
+    create_xml(dfMulVAl)
