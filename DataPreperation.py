@@ -3,8 +3,9 @@ import re
 from nltk.corpus import stopwords
 
 INTERACTION_RULES_BY_HEAD = {}
-INTERACTION_RULES_BY_HEAD_NAME = {}
 INTERACTION_RULES_BY_BODY = {}
+INTERACTION_RULES_BY_HEAD_NAME = {}
+INTERACTION_RULES_BY_BODY_NAME = {}
 KEYWORDS_DICT = {}
 TECHNIQUE_DICT = {}
 
@@ -44,7 +45,7 @@ def create_ir_dict(dfMulVAl):
                         predicates.append((row, predicate))
 
                         INTERACTION_RULES_BY_HEAD.update({ir_head: predicates})
-
+                        
                         if predicate not in INTERACTION_RULES_BY_BODY.keys():
                             INTERACTION_RULES_BY_BODY.update({predicate: [(row, ir_head)]})
                         else:
@@ -59,18 +60,23 @@ def create_ir_dict(dfMulVAl):
         else:
             INTERACTION_RULES_BY_HEAD.update({dfMulVAl['Predicate'][row]: None})
 
-def create_ir_head_name_dict():
+
+def create_ir_name_dict():
 
     for ir_head in INTERACTION_RULES_BY_HEAD.keys():
         ir_head_name = ir_head.split('(')[0]
         INTERACTION_RULES_BY_HEAD_NAME.update({ir_head_name: INTERACTION_RULES_BY_HEAD[ir_head]})
+
+    for ir_body in INTERACTION_RULES_BY_BODY.keys():
+        ir_body_name = ir_body.split('(')[0]
+        INTERACTION_RULES_BY_BODY_NAME.update({ir_body_name: INTERACTION_RULES_BY_BODY[ir_body]})
+
 
 def create_explanation_keyword_dict(dfMulVAl):
     """
     This function creates the KEYWORDS_DICT which keys are keywords and values are row numbers
     :param dfMulVAl: data frame of the given xlsx file
     """
-
     english_stopwords = frozenset(stopwords.words('english'))
 
     for row, explanation in enumerate(dfMulVAl['Explanation']):
@@ -110,8 +116,11 @@ def create_MITRE_technique_dict(dfMulVAl):
                         TECHNIQUE_DICT[technique].append(row)
 
 
-path = 'C:\\Users\\ADMIN\\Documents\\AttackGraphs\\Attack-GraphsProject\\MulVAL to MITRE-for IR Manager.xlsx'
-dfMulVAl = pd.read_excel(path)
-create_ir_dict(dfMulVAl)
-create_ir_head_name_dict()
-print(INTERACTION_RULES_BY_BODY.keys())
+
+# path = 'C:\\Users\\ADMIN\\Documents\\AttackGraphs\\Attack-GraphsProject\\MulVAL to MITRE-for IR Manager.xlsx'
+# dfMulVAl = pd.read_excel(path)
+# create_ir_dict(dfMulVAl)
+# create_ir_head_name_dict()
+
+
+print("technique_dict".upper())
