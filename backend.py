@@ -1,12 +1,10 @@
 import re
-
 import DataPreperation as dp
 import pandas as pd
 from xml.dom import minidom
 
 
 def create_data_structures(dfMulVAl):
-
     dp.create_ir_dict(dfMulVAl)
     dp.create_ir_name_dict()
     dp.create_explanation_keyword_dict(dfMulVAl)
@@ -55,16 +53,40 @@ def create_xml(dfMulVAl):
         ir_head_parts = re.split("\(|,|\)", ir_head)
         ir_head_name = ir_head_parts[0]
 
+        ir = doc.createElement('SIR')
+        ir.setAttribute('Name', ir_head_name)
+
         if root.firstChild is None:
-            ir = doc.createElement('SIR')
-            ir.setAttribute('Name', ir_head_name)
             root.appendChild(ir)
-            # parameters = doc.createElement('Parameters')
-            # ir.appendChild(parameters)
         else:
-            ir = doc.createElement('SIR')
-            ir.setAttribute('Name', ir_head_name)
             root.insertBefore(ir, root.firstChild)
+        parameters = doc.createElement('Parameters')
+        ir.appendChild(parameters)
+
+        for i, entity in enumerate(ir_head_parts):
+            if i == 0 or entity == '':
+                continue
+            ent = doc.createElement('Parameter')
+            ent.setAttribute('Type', entity.strip())
+            ent.appendChild(doc.createTextNode(''))
+            if parameters.firstChild is None:
+                parameters.appendChild(ent)
+            else:
+                parameters.insertBefore(ent, parameters.firstChild)
+
+        body = doc.createElement('Body')
+        ir.appendChild(body)
+
+        desc = doc.createElement('Description')
+        explenation = dfMulVAl['Explanation'][row]
+        if pd.isna(explenation):
+            explenation = ''
+        desc.appendChild(doc.createTextNode(explenation.strip()))
+        ir.appendChild(desc)
+
+        technique = doc.createElement('Technique')
+        technique.appendChild(doc.createTextNode(dfMulVAl['MITRE Enterprise Technique'][row].strip()))
+        ir.appendChild(technique)
 
     xml_str = doc.toprettyxml(indent="\t")
 
@@ -75,7 +97,6 @@ def create_xml(dfMulVAl):
 
 
 if __name__ == "__main__":
-
     path = 'C:\\Users\\ADMIN\\Documents\\AttackGraphs\\Attack-GraphsProject\\MulVAL to MITRE-for IR Manager.xlsx'
     dfMulVAl = pd.read_excel(path)
     create_data_structures(dfMulVAl)
