@@ -114,13 +114,3 @@ def create_MITRE_technique_dict(dfMulVAl):
                 else:
                     if row not in TECHNIQUE_DICT[technique]:
                         TECHNIQUE_DICT[technique].append(row)
-
-
-
-# path = 'C:\\Users\\ADMIN\\Documents\\AttackGraphs\\Attack-GraphsProject\\MulVAL to MITRE-for IR Manager.xlsx'
-# dfMulVAl = pd.read_excel(path)
-# create_ir_dict(dfMulVAl)
-# create_ir_head_name_dict()
-
-
-print("technique_dict".upper())
