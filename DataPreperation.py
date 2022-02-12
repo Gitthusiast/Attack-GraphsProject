@@ -2,15 +2,17 @@ import pandas as pd
 import re
 from nltk.corpus import stopwords
 
-INTERACTION_RULES = {}
+INTERACTION_RULES_BY_HEAD = {}
+INTERACTION_RULES_BY_HEAD_NAME = {}
+INTERACTION_RULES_BY_BODY = {}
 KEYWORDS_DICT = {}
 TECHNIQUE_DICT = {}
 
 
 def create_ir_dict(dfMulVAl):
     """
-    This function creates a dictionary which keys are tuples of (row_number, interaction_rule_head)
-     and values are lists of ir bodies
+    This function creates a dictionary which  {interaction_rule_head: (row_number, ir_body)}
+    This function also creates a dictionary with {interaction_rule_head: ((row_number, ir_head))}
     :param path: data frame of the given xlsx file
     """
 
@@ -38,13 +40,30 @@ def create_ir_dict(dfMulVAl):
                     if len(predicate) >= 3 and predicate[1] != '%' and predicate[2] != '%':
                         if predicate[-1] == "," or predicate[-1] == '.':
                             predicate = predicate[:-1]
-                        predicates.append(predicate.strip())
-                INTERACTION_RULES.update({(row, ir_head): predicates})
-            else:
-                INTERACTION_RULES.update({(row, ir_head): None})
-        else:
-            INTERACTION_RULES.update({(row, dfMulVAl['Predicate'][row]): None})
+                        predicate = predicate.strip()
+                        predicates.append((row, predicate))
 
+                        INTERACTION_RULES_BY_HEAD.update({ir_head: predicates})
+
+                        if predicate not in INTERACTION_RULES_BY_BODY.keys():
+                            INTERACTION_RULES_BY_BODY.update({predicate: [(row, ir_head)]})
+                        else:
+                            if ir_head not in INTERACTION_RULES_BY_BODY[predicate]:
+                                INTERACTION_RULES_BY_BODY[predicate] = [(row, ir_head)]
+                            else:
+                                INTERACTION_RULES_BY_BODY[predicate].append(row, ir_head)
+
+            else:
+                INTERACTION_RULES_BY_HEAD.update({ir_head: None})
+
+        else:
+            INTERACTION_RULES_BY_HEAD.update({dfMulVAl['Predicate'][row]: None})
+
+def create_ir_head_name_dict():
+
+    for ir_head in INTERACTION_RULES_BY_HEAD.keys():
+        ir_head_name = ir_head.split('(')[0]
+        INTERACTION_RULES_BY_HEAD_NAME.update({ir_head_name: INTERACTION_RULES_BY_HEAD[ir_head]})
 
 def create_explanation_keyword_dict(dfMulVAl):
     """
@@ -71,7 +90,7 @@ def create_explanation_keyword_dict(dfMulVAl):
 def create_MITRE_technique_dict(dfMulVAl):
 
     """
-    This function creates the TECHNIQUE_DICT which keys are techniques and values are row numbers
+    This function creates the TECHNIQUE_DICT : {technique: row_number}
     :param dfMulVAl: data frame of the given xlsx file
     """
 
@@ -93,7 +112,6 @@ def create_MITRE_technique_dict(dfMulVAl):
 
 path = 'C:\\Users\\ADMIN\\Documents\\AttackGraphs\\Attack-GraphsProject\\MulVAL to MITRE-for IR Manager.xlsx'
 dfMulVAl = pd.read_excel(path)
-# create_ir_dict(dfMulVAl)
-# create_explanation_keyword_dict(dfMulVAl)
-create_MITRE_technique_dict(dfMulVAl)
-print(TECHNIQUE_DICT.keys())
+create_ir_dict(dfMulVAl)
+create_ir_head_name_dict()
+print(INTERACTION_RULES_BY_BODY.keys())
