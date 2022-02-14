@@ -1,0 +1,29 @@
+
+<grid>:
+	
+	search_for: search_for
+
+	GridLayout:
+		cols: 1
+		size: root.width - 200, root.height - 187
+		color: 0, 0, 0, 0
+		pos: 50, 150
+
+
+		Label: 
+			text: "Interaction Rules mapper of attack graphs \n"
+			markup: True
+
+
+
+		GridLayout:
+			cols:2
+
+			Label:
+				text: "search for: "
+				markup: True
+
+			TextInput:
+				id: search_for
+				multiline:False
+			
