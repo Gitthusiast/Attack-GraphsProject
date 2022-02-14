@@ -11,6 +11,7 @@ KEYWORDS_DICT = {}
 TECHNIQUE_DICT = {}
 
 
+
 def create_ir_dict(dfMulVAl):
     """
     This function creates a dictionary which  {interaction_rule_head: (row_number, ir_body)}
@@ -49,7 +50,7 @@ def create_ir_dict(dfMulVAl):
                         predicates.append((row, predicate))
 
                         INTERACTION_RULES_BY_HEAD.update({ir_head: predicates})
-                        
+
                         if predicate not in INTERACTION_RULES_BY_BODY.keys():
                             INTERACTION_RULES_BY_BODY.update({predicate: [(row, ir_head)]})
                         else:
@@ -81,6 +82,7 @@ def create_explanation_keyword_dict(dfMulVAl):
     This function creates the KEYWORDS_DICT which keys are keywords and values are row numbers
     :param dfMulVAl: data frame of the given xlsx file
     """
+
     english_stopwords = frozenset(stopwords.words('english'))
 
     for row, explanation in enumerate(dfMulVAl['Explanation']):
@@ -118,3 +120,24 @@ def create_MITRE_technique_dict(dfMulVAl):
                 else:
                     if row not in TECHNIQUE_DICT[technique]:
                         TECHNIQUE_DICT[technique].append(row)
+
+def create_predicate_dict(dfMulVAl):
+    """
+        This function creates the PREDICATE_DICT : {predicate: (number_row, Primitive/dderived)}
+        :param dfMulVAl: data frame of the given xlsx file
+    """
+    for row, explanation in enumerate(dfMulVAl['']):
+
+        if isinstance(explanation, str):
+
+            techniques = re.split("\n", explanation)
+            for technique in techniques:
+                if technique == '':
+                    continue
+                technique = technique.strip()
+                if technique not in TECHNIQUE_DICT.keys():
+                    TECHNIQUE_DICT.update({technique: [row]})
+                else:
+                    if row not in TECHNIQUE_DICT[technique]:
+                        TECHNIQUE_DICT[technique].append(row)
+
