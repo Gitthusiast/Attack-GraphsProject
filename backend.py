@@ -38,7 +38,7 @@ def search_ir_by_head_name(ir_head_name):
     return dp.INTERACTION_RULES_BY_HEAD_NAME.get(ir_head_name)
 
 
-def create_xml(dfMulVAl, rows):
+def create_xml_from_df(dfMulVAl, rows):
     """
     :param dfMulVAl: data frame containing the data from the xlsx file
     :param list of rows to inlcude in the xml
@@ -68,8 +68,8 @@ def create_xml(dfMulVAl, rows):
             if i == 0 or entity == '':
                 continue
             ent = doc.createElement('Parameter')
-            ent.setAttribute('Type', entity.strip())
-            ent.appendChild(doc.createTextNode(''))
+            ent.setAttribute('Type', "IR_Head")
+            ent.appendChild(doc.createTextNode(entity.strip()))
             if parameters.firstChild is None:
                 parameters.appendChild(ent)
             else:
@@ -96,8 +96,8 @@ def create_xml(dfMulVAl, rows):
                 if i == 0 or entity == '':
                     continue
                 ent = doc.createElement('Parameter')
-                ent.setAttribute('Type', entity.strip())
-                ent.appendChild(doc.createTextNode(''))
+                ent.setAttribute('Type', "Entity")######################
+                ent.appendChild(doc.createTextNode(entity.strip()))
                 if parameters.firstChild is None:
                     parameters.appendChild(ent)
                 else:
@@ -127,4 +127,4 @@ if __name__ == "__main__":
     dfMulVAl = pd.read_excel(path)
     create_data_structures(dfMulVAl)
     rows = dp.ROW_TO_IR.keys()
-    create_xml(dfMulVAl, rows)
+    create_xml_from_df(dfMulVAl, rows)
