@@ -1,19 +1,19 @@
-import pandas as pd
 import re
 from nltk.corpus import stopwords
+from xml.dom import minidom
 
-INTERACTION_RULES_BY_HEAD = {}
-INTERACTION_RULES_BY_BODY = {}
-INTERACTION_RULES_BY_HEAD_NAME = {}
-INTERACTION_RULES_BY_BODY_NAME = {}
-ROW_TO_IR = {}
-KEYWORDS_DICT = {}
-TECHNIQUE_DICT = {}
+INTERACTION_RULES_BY_HEAD = {}  # {ir_head: predicates}
+INTERACTION_RULES_BY_BODY = {}  # {predicate: [(row, ir_head)]}
+INTERACTION_RULES_BY_HEAD_NAME = {}  # {ir_head_name: INTERACTION_RULES_BY_HEAD[ir_head]}
+INTERACTION_RULES_BY_BODY_NAME = {}  # {ir_body_name: INTERACTION_RULES_BY_BODY[ir_body]}
+ROW_TO_IR = {}  # {row: ir_head}
+KEYWORDS_DICT = {}  # {keyword.lower(): [row]}
+TECHNIQUE_DICT = {}  # {technique: [row_number]}
 
 
 def create_ir_dict(dfMulVAl):
     """
-    This function creates a dictionary which  {interaction_rule_head: (row_number, ir_body)}
+    This function creates a dictionary {interaction_rule_head: (row_number, ir_body)}
     And a dictionary with {interaction_rule_head: (row_number, ir_head)}
     And a dict of {row_number, ir_head}
     :param path: data frame of the given xlsx file
@@ -100,7 +100,7 @@ def create_explanation_keyword_dict(dfMulVAl):
 def create_MITRE_technique_dict(dfMulVAl):
 
     """
-    This function creates the TECHNIQUE_DICT : {technique: row_number}
+    This function creates the TECHNIQUE_DICT : {technique: [row_number]}
     :param dfMulVAl: data frame of the given xlsx file
     """
 
@@ -118,3 +118,57 @@ def create_MITRE_technique_dict(dfMulVAl):
                 else:
                     if row not in TECHNIQUE_DICT[technique]:
                         TECHNIQUE_DICT[technique].append(row)
+
+
+def read_from_xml(path):
+
+    file = minidom.parse(path)
+    IRs = file.getElementsByTagName('SIR')
+
+    # one specific item attribute
+    for sir_num, IR in enumerate(IRs, 1):
+
+        ir_head = IR.attributes['Name'].value
+
+        for ir_part in IR.childNodes:
+            head_entities = []
+            if ir_part.nodeType == minidom.Node.ELEMENT_NODE:
+                if ir_part.localName == 'Parameters':
+                    for parameter in ir_part.childNodes:
+                        if parameter.nodeType == minidom.Node.ELEMENT_NODE and parameter.localName == 'Parameter':
+                            head_entities.append(parameter.firstChild.data)
+
+                    if len(head_entities) != 0:
+                        ir_head = ir_head + '(' + ','.join(head_entities) + ')'
+                        print(ir_head + " :- ")
+
+                elif ir_part.localName == 'Body':
+
+                    predicates = []
+                    for rule in ir_part.childNodes:
+                        body_entities = []
+                        if rule.nodeType == minidom.Node.ELEMENT_NODE:
+                            body_rule = rule.attributes['Name'].value
+                            for parameters in rule.childNodes:
+                                if parameters.nodeType == minidom.Node.ELEMENT_NODE:
+                                    if parameters.localName == 'Parameters':
+                                        for parameter in parameters.childNodes:
+                                            if parameter.nodeType == minidom.Node.ELEMENT_NODE and \
+                                                    parameter.localName == 'Parameter':
+                                                body_entities.append(parameter.firstChild.data)
+                                        body_rule = body_rule + '(' + ','.join(body_entities) + ')'
+                                        predicates.append((sir_num, body_rule))
+                    INTERACTION_RULES_BY_HEAD.update({ir_head: predicates})
+                elif ir_part.localName == 'Description':
+                    print("Description:")
+                    for description in ir_part.childNodes:
+                        if description.nodeType == minidom.Node.TEXT_NODE:
+                            print(description.data)
+                elif ir_part.localName == 'Technique':
+                    print("Technique:")
+                    for technique in ir_part.childNodes:
+                        if technique.nodeType == minidom.Node.TEXT_NODE:
+                            print(technique.data)
+
+path = 'C:\\Users\\ADMIN\\Documents\\AttackGraphs\\Attack-GraphsProject\\input.xml'
+read_from_xml(path)

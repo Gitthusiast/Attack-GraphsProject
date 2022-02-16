@@ -64,8 +64,8 @@ def create_xml_from_df(dfMulVAl, rows):
         parameters = doc.createElement('Parameters')
         ir.appendChild(parameters)
 
-        for i, entity in enumerate(ir_head_parts):
-            if i == 0 or entity == '':
+        for i, entity in enumerate(ir_head_parts[::-1]):
+            if entity.strip() == ir_head_name or entity.strip() == '':
                 continue
             ent = doc.createElement('Parameter')
             ent.setAttribute('Type', "IR_Head")
@@ -80,10 +80,10 @@ def create_xml_from_df(dfMulVAl, rows):
         for interaction_rule in dp.INTERACTION_RULES_BY_HEAD_NAME[ir_head_name]:
 
             ir_body_parts = re.split("\(|,|\)", interaction_rule[1])
-            head_name = ir_head_parts[0]
+            body_rule_name = ir_body_parts[0]
 
             rule = doc.createElement('Rule')
-            rule.setAttribute('Name', head_name)
+            rule.setAttribute('Name', body_rule_name)
 
             if root.firstChild is None:
                 body.appendChild(rule)
@@ -92,11 +92,11 @@ def create_xml_from_df(dfMulVAl, rows):
             parameters = doc.createElement('Parameters')
             rule.appendChild(parameters)
 
-            for i, entity in enumerate(ir_body_parts):
-                if i == 0 or entity == '':
+            for i, entity in enumerate(ir_body_parts[::-1]):
+                if entity.strip() == body_rule_name or entity.strip() == '':
                     continue
                 ent = doc.createElement('Parameter')
-                ent.setAttribute('Type', "Entity")######################
+                ent.setAttribute('Type', "Entity")
                 ent.appendChild(doc.createTextNode(entity.strip()))
                 if parameters.firstChild is None:
                     parameters.appendChild(ent)
