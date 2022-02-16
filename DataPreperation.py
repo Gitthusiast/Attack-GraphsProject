@@ -1,6 +1,8 @@
 import pandas as pd
 import re
+import nltk
 from nltk.corpus import stopwords
+# nltk.download('stopwords')
 
 INTERACTION_RULES_BY_HEAD = {}
 INTERACTION_RULES_BY_BODY = {}
