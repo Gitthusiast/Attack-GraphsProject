@@ -7,8 +7,8 @@ from xml.dom import minidom
 def create_data_structures(dfMulVAl):
     dp.create_ir_dict(dfMulVAl)
     dp.create_ir_name_dict()
-    dp.create_explanation_keyword_dict(dfMulVAl)
-    dp.create_MITRE_technique_dict(dfMulVAl)
+    dp.create_explanation_keyword_dict(dfMulVAl['Explanation'])
+    dp.create_MITRE_technique_dict(dfMulVAl['MITRE Enterprise Technique'])
 
 
 def search_by_technique(technique):
@@ -38,9 +38,10 @@ def search_ir_by_head_name(ir_head_name):
     return dp.INTERACTION_RULES_BY_HEAD_NAME.get(ir_head_name)
 
 
-def create_xml_from_df(dfMulVAl, rows):
+def create_xml_from_df(explanations, techniques, rows):
     """
-    :param dfMulVAl: data frame containing the data from the xlsx file
+    :param explanations: list of explanations strings
+    :param techniques: list of MITRE technique strings
     :param list of rows to inlcude in the xml
     :return:
     """
@@ -50,6 +51,8 @@ def create_xml_from_df(dfMulVAl, rows):
 
     for row in rows:
 
+        if not dp.ROW_TO_IR.get(row):
+            continue
         ir_head = dp.ROW_TO_IR[row]
         ir_head_parts = re.split("\(|,|\)", ir_head)
         ir_head_name = ir_head_parts[0]
@@ -104,14 +107,14 @@ def create_xml_from_df(dfMulVAl, rows):
                     parameters.insertBefore(ent, parameters.firstChild)
 
         desc = doc.createElement('Description')
-        explenation = dfMulVAl['Explanation'][row]
-        if pd.isna(explenation):
+        explenation = explanations.get(row)
+        if not explenation:
             explenation = ''
         desc.appendChild(doc.createTextNode(explenation.strip()))
         ir.appendChild(desc)
 
         technique = doc.createElement('Technique')
-        technique.appendChild(doc.createTextNode(dfMulVAl['MITRE Enterprise Technique'][row].strip()))
+        technique.appendChild(doc.createTextNode(techniques[row].strip()))
         ir.appendChild(technique)
 
     xml_str = doc.toprettyxml(indent="\t")
@@ -127,4 +130,5 @@ if __name__ == "__main__":
     dfMulVAl = pd.read_excel(path)
     create_data_structures(dfMulVAl)
     rows = dp.ROW_TO_IR.keys()
-    create_xml_from_df(dfMulVAl, rows)
+    create_xml_from_df(dp.explanations, dp.techniques, rows)
+    print()

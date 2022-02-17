@@ -1,4 +1,5 @@
 import re
+import pandas as pd
 from nltk.corpus import stopwords
 from xml.dom import minidom
 
@@ -9,6 +10,9 @@ INTERACTION_RULES_BY_BODY_NAME = {}  # {ir_body_name: INTERACTION_RULES_BY_BODY[
 ROW_TO_IR = {}  # {row: ir_head}
 KEYWORDS_DICT = {}  # {keyword.lower(): [row]}
 TECHNIQUE_DICT = {}  # {technique: [row_number]}
+
+explanations = {}  # {row, description}
+techniques = {}  # {row, technique}
 
 
 def create_ir_dict(dfMulVAl):
@@ -21,6 +25,10 @@ def create_ir_dict(dfMulVAl):
 
     for row, IR in enumerate(dfMulVAl['Interaction Rules']):
 
+        if not pd.isna(dfMulVAl['Explanation'][row]):
+            explanations.update({row: dfMulVAl['Explanation'][row]})
+        if not pd.isna(dfMulVAl['MITRE Enterprise Technique'][row]):
+            techniques.update({row: dfMulVAl['MITRE Enterprise Technique'][row].strip()})
         if isinstance(IR, str):
 
             splited_ir = IR.split(":-")
@@ -47,8 +55,10 @@ def create_ir_dict(dfMulVAl):
                             predicate = predicate[:-1]
                         predicate = predicate.strip()
                         predicates.append((row, predicate))
-
-                        INTERACTION_RULES_BY_HEAD.update({ir_head: predicates})
+                        if not INTERACTION_RULES_BY_HEAD.get(ir_head):
+                            INTERACTION_RULES_BY_HEAD.update({ir_head: predicates})
+                        else:
+                            INTERACTION_RULES_BY_HEAD[ir_head].extend(predicates)
                         
                         if predicate not in INTERACTION_RULES_BY_BODY.keys():
                             INTERACTION_RULES_BY_BODY.update({predicate: [(row, ir_head)]})
@@ -76,14 +86,14 @@ def create_ir_name_dict():
         INTERACTION_RULES_BY_BODY_NAME.update({ir_body_name: INTERACTION_RULES_BY_BODY[ir_body]})
 
 
-def create_explanation_keyword_dict(dfMulVAl):
+def create_explanation_keyword_dict(explanations):
     """
     This function creates the KEYWORDS_DICT which keys are keywords and values are row numbers
-    :param dfMulVAl: data frame of the given xlsx file
+    :param explanations: list of explanations
     """
     english_stopwords = frozenset(stopwords.words('english'))
 
-    for row, explanation in enumerate(dfMulVAl['Explanation']):
+    for row, explanation in enumerate(explanations):
 
         if isinstance(explanation, str):
 
@@ -97,14 +107,14 @@ def create_explanation_keyword_dict(dfMulVAl):
                             KEYWORDS_DICT[keyword.lower()].append(row)
 
 
-def create_MITRE_technique_dict(dfMulVAl):
+def create_MITRE_technique_dict(techniques):
 
     """
     This function creates the TECHNIQUE_DICT : {technique: [row_number]}
-    :param dfMulVAl: data frame of the given xlsx file
+    :param techniques: list of techniques
     """
 
-    for row, explanation in enumerate(dfMulVAl['MITRE Enterprise Technique']):
+    for row, explanation in enumerate(techniques):
 
         if isinstance(explanation, str):
 
@@ -126,7 +136,7 @@ def read_from_xml(path):
     IRs = file.getElementsByTagName('SIR')
 
     # one specific item attribute
-    for sir_num, IR in enumerate(IRs, 1):
+    for sir_num, IR in enumerate(IRs):
 
         ir_head = IR.attributes['Name'].value
 
@@ -158,17 +168,33 @@ def read_from_xml(path):
                                                 body_entities.append(parameter.firstChild.data)
                                         body_rule = body_rule + '(' + ','.join(body_entities) + ')'
                                         predicates.append((sir_num, body_rule))
-                    INTERACTION_RULES_BY_HEAD.update({ir_head: predicates})
+
+                                        INTERACTION_RULES_BY_BODY.update({body_rule: (sir_num, ir_head)})
+                                        INTERACTION_RULES_BY_BODY.update({body_rule.split('(')[0]: (sir_num, ir_head)})
+
+                    if not INTERACTION_RULES_BY_HEAD.get(ir_head):
+                        INTERACTION_RULES_BY_HEAD[ir_head].extend(predicates)
+                        INTERACTION_RULES_BY_HEAD_NAME[ir_head.split('(')[0]].extend(predicates)
+                    else:
+                        INTERACTION_RULES_BY_HEAD.update({ir_head: predicates})
+                        INTERACTION_RULES_BY_HEAD_NAME.update({ir_head.split('(')[0]: predicates})
+                    ROW_TO_IR.update({sir_num: ir_head})
+
                 elif ir_part.localName == 'Description':
                     print("Description:")
                     for description in ir_part.childNodes:
                         if description.nodeType == minidom.Node.TEXT_NODE:
                             print(description.data)
+                            explanations.append(description.data)
                 elif ir_part.localName == 'Technique':
                     print("Technique:")
                     for technique in ir_part.childNodes:
                         if technique.nodeType == minidom.Node.TEXT_NODE:
                             print(technique.data)
+                            techniques.append(technique.data)
+    create_explanation_keyword_dict(explanations)
+    create_MITRE_technique_dict(techniques)
+    print()
 
-path = 'C:\\Users\\ADMIN\\Documents\\AttackGraphs\\Attack-GraphsProject\\input.xml'
-read_from_xml(path)
+# path = 'C:\\Users\\ADMIN\\Documents\\AttackGraphs\\Attack-GraphsProject\\input.xml'
+# read_from_xml(path)
