@@ -3,9 +3,9 @@ import pandas as pd
 from nltk.corpus import stopwords
 from xml.dom import minidom
 
-INTERACTION_RULES_BY_HEAD = {}  # {ir_head: predicates}
-INTERACTION_RULES_BY_BODY = {}  # {predicate: [(row, ir_head)]}
-INTERACTION_RULES_BY_HEAD_NAME = {}  # {ir_head_name: INTERACTION_RULES_BY_HEAD[ir_head]}
+INTERACTION_RULES_BY_HEAD = {}  # {ir_head: [(ROW, predicates),()]}
+INTERACTION_RULES_BY_BODY = {}  # {predicate: [(row, ir_head),()]}
+INTERACTION_RULES_BY_HEAD_NAME = {}  # {ir_head_name: [(ROW, predicates),()]}
 INTERACTION_RULES_BY_BODY_NAME = {}  # {ir_body_name: INTERACTION_RULES_BY_BODY[ir_body]}
 ROW_TO_IR = {}  # {row: ir_head}
 KEYWORDS_DICT = {}  # {keyword.lower(): [row]}
@@ -59,14 +59,17 @@ def create_ir_dict(dfMulVAl):
                             predicate = predicate[:-1]
                         predicate = predicate.strip()
                         predicates.append((row, predicate))
-                        
-                        if predicate not in INTERACTION_RULES_BY_BODY.keys():
-                            INTERACTION_RULES_BY_BODY.update({predicate: [(row, ir_head)]})
-                        else:
-                            if ir_head not in INTERACTION_RULES_BY_BODY[predicate]:
-                                INTERACTION_RULES_BY_BODY[predicate] = [(row, ir_head)]
+
+                        if INTERACTION_RULES_BY_BODY.get(predicate) \
+                                and (row, ir_head) not in INTERACTION_RULES_BY_BODY[predicate]:
+
+                            if predicate not in INTERACTION_RULES_BY_BODY.keys():
+                                INTERACTION_RULES_BY_BODY.update({predicate: [(row, ir_head)]})
                             else:
-                                INTERACTION_RULES_BY_BODY[predicate].append(row, ir_head)
+                                if ir_head not in INTERACTION_RULES_BY_BODY[predicate]:
+                                    INTERACTION_RULES_BY_BODY[predicate] = [(row, ir_head)]
+                                else:
+                                    INTERACTION_RULES_BY_BODY[predicate].append(row, ir_head)
                 add_to_ir_head_dict(ir_head, row, predicates)
             else:
                 add_to_ir_head_dict(ir_head, row, None)
@@ -184,14 +187,14 @@ def read_from_xml(path):
                                         predicates.append((sir_num, body_rule))
 
                                         INTERACTION_RULES_BY_BODY.update({body_rule: (sir_num, ir_head)})
-                                        INTERACTION_RULES_BY_BODY.update({body_rule.split('(')[0]: (sir_num, ir_head)})
+                                        INTERACTION_RULES_BY_BODY_NAME.update({body_rule.split('(')[0]: (sir_num, ir_head)})
 
                     if not INTERACTION_RULES_BY_HEAD.get(ir_head):
-                        INTERACTION_RULES_BY_HEAD[ir_head].extend(predicates)
-                        INTERACTION_RULES_BY_HEAD_NAME[ir_head.split('(')[0]].extend(predicates)
-                    else:
                         INTERACTION_RULES_BY_HEAD.update({ir_head: predicates})
                         INTERACTION_RULES_BY_HEAD_NAME.update({ir_head.split('(')[0]: predicates})
+                    else:
+                        INTERACTION_RULES_BY_HEAD[ir_head].extend(predicates)
+                        INTERACTION_RULES_BY_HEAD_NAME[ir_head.split('(')[0]].extend(predicates)
                     ROW_TO_IR.update({sir_num: ir_head})
 
                 elif ir_part.localName == 'Description':
@@ -199,13 +202,13 @@ def read_from_xml(path):
                     for description in ir_part.childNodes:
                         if description.nodeType == minidom.Node.TEXT_NODE:
                             print(description.data)
-                            explanations.append(description.data)
+                            explanations.update({sir_num: description.data})
                 elif ir_part.localName == 'Technique':
                     print("Technique:")
                     for technique in ir_part.childNodes:
                         if technique.nodeType == minidom.Node.TEXT_NODE:
                             print(technique.data)
-                            techniques.append(technique.data)
+                            techniques.update({sir_num: technique.data})
     create_explanation_keyword_dict(explanations)
     create_MITRE_technique_dict(techniques)
     print()
