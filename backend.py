@@ -130,8 +130,15 @@ def create_xml_from_df(explanations, techniques, rows):
         f.write(xml_str)
 
 
-if __name__ == "__main__":
-    path = 'C:\\Users\\ADMIN\\Documents\\AttackGraphs\\Attack-GraphsProject\\MulVAL to MITRE-for IR Manager.xlsx'
+# if __name__ == "__main__":
+#     path = "MulVAL to MITRE-for IR Manager.xlsx"
+#     dfMulVAl = pd.read_excel(path)
+#     create_data_structures(dfMulVAl)
+#     create_xml(dfMulVAl)
+    # print(dp.TECHNIQUE_DICT.keys())
+
+def build():
+    path = "MulVAL to MITRE-for IR Manager.xlsx"
     dfMulVAl = pd.read_excel(path)
     create_data_structures(dfMulVAl)
     rows = dp.ROW_TO_IR.keys()
