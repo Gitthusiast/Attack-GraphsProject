@@ -27,8 +27,12 @@ def create_ir_dict(dfMulVAl):
 
         if not pd.isna(dfMulVAl['Explanation'][row]):
             explanations.update({row: dfMulVAl['Explanation'][row]})
+        else:
+            explanations.update({row: ''})
         if not pd.isna(dfMulVAl['MITRE Enterprise Technique'][row]):
             techniques.update({row: dfMulVAl['MITRE Enterprise Technique'][row].strip()})
+        else:
+            techniques.update({row: ''})
         if isinstance(IR, str):
 
             splited_ir = IR.split(":-")
@@ -55,10 +59,6 @@ def create_ir_dict(dfMulVAl):
                             predicate = predicate[:-1]
                         predicate = predicate.strip()
                         predicates.append((row, predicate))
-                        if not INTERACTION_RULES_BY_HEAD.get(ir_head):
-                            INTERACTION_RULES_BY_HEAD.update({ir_head: predicates})
-                        else:
-                            INTERACTION_RULES_BY_HEAD[ir_head].extend(predicates)
                         
                         if predicate not in INTERACTION_RULES_BY_BODY.keys():
                             INTERACTION_RULES_BY_BODY.update({predicate: [(row, ir_head)]})
@@ -67,23 +67,37 @@ def create_ir_dict(dfMulVAl):
                                 INTERACTION_RULES_BY_BODY[predicate] = [(row, ir_head)]
                             else:
                                 INTERACTION_RULES_BY_BODY[predicate].append(row, ir_head)
-
+                add_to_ir_head_dict(ir_head, row, predicates)
             else:
-                INTERACTION_RULES_BY_HEAD.update({ir_head: None})
-
+                add_to_ir_head_dict(ir_head, row, None)
         else:
-            INTERACTION_RULES_BY_HEAD.update({dfMulVAl['Predicate'][row]: None})
+            ROW_TO_IR.update({row: dfMulVAl['Predicate'][row]})
+            add_to_ir_head_dict(dfMulVAl['Predicate'][row], row, None)
+
+
+def add_to_ir_head_dict(ir_head, row, predicates):
+
+    if not INTERACTION_RULES_BY_HEAD.get(ir_head):
+        INTERACTION_RULES_BY_HEAD.update({ir_head: [(row, predicates)]})
+    else:
+        INTERACTION_RULES_BY_HEAD[ir_head].append((row, predicates))
 
 
 def create_ir_name_dict():
 
     for ir_head in INTERACTION_RULES_BY_HEAD.keys():
         ir_head_name = ir_head.split('(')[0]
-        INTERACTION_RULES_BY_HEAD_NAME.update({ir_head_name: INTERACTION_RULES_BY_HEAD[ir_head]})
+        if not INTERACTION_RULES_BY_HEAD_NAME.get(ir_head_name):
+            INTERACTION_RULES_BY_HEAD_NAME.update({ir_head_name: INTERACTION_RULES_BY_HEAD[ir_head]})
+        else:
+            INTERACTION_RULES_BY_HEAD_NAME[ir_head_name].extend(INTERACTION_RULES_BY_HEAD[ir_head])
 
     for ir_body in INTERACTION_RULES_BY_BODY.keys():
         ir_body_name = ir_body.split('(')[0]
-        INTERACTION_RULES_BY_BODY_NAME.update({ir_body_name: INTERACTION_RULES_BY_BODY[ir_body]})
+        if not INTERACTION_RULES_BY_BODY_NAME.get(ir_body_name):
+            INTERACTION_RULES_BY_BODY_NAME.update({ir_body_name: INTERACTION_RULES_BY_BODY[ir_body]})
+        else:
+            INTERACTION_RULES_BY_BODY_NAME[ir_body_name].extend(INTERACTION_RULES_BY_BODY[ir_body])
 
 
 def create_explanation_keyword_dict(explanations):

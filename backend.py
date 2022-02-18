@@ -48,6 +48,7 @@ def create_xml_from_df(explanations, techniques, rows):
     doc = minidom.Document()
     root = doc.createElement('SIRS')
     doc.appendChild(root)
+    rows = reversed(sorted(rows))
 
     for row in rows:
 
@@ -81,30 +82,34 @@ def create_xml_from_df(explanations, techniques, rows):
         body = doc.createElement('Body')
         ir.appendChild(body)
         for interaction_rule in dp.INTERACTION_RULES_BY_HEAD_NAME[ir_head_name]:
-
-            ir_body_parts = re.split("\(|,|\)", interaction_rule[1])
-            body_rule_name = ir_body_parts[0]
-
-            rule = doc.createElement('Rule')
-            rule.setAttribute('Name', body_rule_name)
-
-            if root.firstChild is None:
-                body.appendChild(rule)
-            else:
-                body.insertBefore(rule, body.firstChild)
-            parameters = doc.createElement('Parameters')
-            rule.appendChild(parameters)
-
-            for i, entity in enumerate(ir_body_parts[::-1]):
-                if entity.strip() == body_rule_name or entity.strip() == '':
+            if not interaction_rule[1]:
+                continue
+            for interaction_rule_body_part in reversed(interaction_rule[1]):
+                if interaction_rule[0] != row:
                     continue
-                ent = doc.createElement('Parameter')
-                ent.setAttribute('Type', "Entity")
-                ent.appendChild(doc.createTextNode(entity.strip()))
-                if parameters.firstChild is None:
-                    parameters.appendChild(ent)
+                ir_body_parts = re.split("\(|,|\)", interaction_rule_body_part[1])
+                body_rule_name = ir_body_parts[0]
+
+                rule = doc.createElement('Rule')
+                rule.setAttribute('Name', body_rule_name)
+
+                if root.firstChild is None:
+                    body.appendChild(rule)
                 else:
-                    parameters.insertBefore(ent, parameters.firstChild)
+                    body.insertBefore(rule, body.firstChild)
+                parameters = doc.createElement('Parameters')
+                rule.appendChild(parameters)
+
+                for i, entity in enumerate(ir_body_parts[::-1]):
+                    if entity.strip() == body_rule_name or entity.strip() == '':
+                        continue
+                    ent = doc.createElement('Parameter')
+                    ent.setAttribute('Type', "Entity")
+                    ent.appendChild(doc.createTextNode(entity.strip()))
+                    if parameters.firstChild is None:
+                        parameters.appendChild(ent)
+                    else:
+                        parameters.insertBefore(ent, parameters.firstChild)
 
         desc = doc.createElement('Description')
         explenation = explanations.get(row)
