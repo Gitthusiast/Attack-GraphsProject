@@ -38,7 +38,7 @@ def search_ir_by_head_name(ir_head_name):
     return dp.INTERACTION_RULES_BY_HEAD_NAME.get(ir_head_name)
 
 
-def create_xml_from_df(explanations, techniques, rows):
+def create_xml(explanations, techniques, rows):
     """
     :param explanations: list of explanations strings
     :param techniques: list of MITRE technique strings
@@ -134,13 +134,14 @@ def create_xml_from_df(explanations, techniques, rows):
 #     path = "MulVAL to MITRE-for IR Manager.xlsx"
 #     dfMulVAl = pd.read_excel(path)
 #     create_data_structures(dfMulVAl)
-#     create_xml(dfMulVAl)
-    # print(dp.TECHNIQUE_DICT.keys())
+#     rows = dp.ROW_TO_IR.keys()
+#     create_xml(dp.explanations, dp.techniques, rows)
+#     print()
 
 def build():
     path = "MulVAL to MITRE-for IR Manager.xlsx"
     dfMulVAl = pd.read_excel(path)
     create_data_structures(dfMulVAl)
     rows = dp.ROW_TO_IR.keys()
-    create_xml_from_df(dp.explanations, dp.techniques, rows)
+    create_xml(dp.explanations, dp.techniques, rows)
     print()
