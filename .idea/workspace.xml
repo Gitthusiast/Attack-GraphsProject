@@ -138,10 +138,10 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.main" />
       <item itemvalue="Python.DataPreperation" />
-      <item itemvalue="Python.frontend" />
       <item itemvalue="Python.backend" />
+      <item itemvalue="Python.frontend" />
+      <item itemvalue="Python.main" />
     </list>
     <recent_temporary>
       <list>
