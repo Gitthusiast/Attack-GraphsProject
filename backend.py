@@ -7,8 +7,8 @@ from xml.dom import minidom
 def create_data_structures(dfMulVAl):
     dp.create_ir_dict(dfMulVAl)
     dp.create_ir_name_dict()
-    dp.create_explanation_keyword_dict(dfMulVAl)
-    dp.create_MITRE_technique_dict(dfMulVAl)
+    dp.create_explanation_keyword_dict(dfMulVAl['Explanation'])
+    dp.create_MITRE_technique_dict(dfMulVAl['MITRE Enterprise Technique'])
 
 
 def search_by_technique(technique):
@@ -38,17 +38,29 @@ def search_ir_by_head_name(ir_head_name):
     return dp.INTERACTION_RULES_BY_HEAD_NAME.get(ir_head_name)
 
 
-def create_xml(dfMulVAl):
+def search_by_rule_name(ir_head):
     """
-    :param dfMulVAl: data frame containing the data from the xlsx file
+    :param name of rule head
+    :return: list of tuples (row,ir_body) or None if no match is found
+    """
+
+    return dp.INTERACTION_RULES_BY_HEAD.get(ir_head)
+
+
+def create_xml(rows):
+    """
+    :param list of rows to inlcude in the xml
     :return:
     """
     doc = minidom.Document()
     root = doc.createElement('SIRS')
     doc.appendChild(root)
+    rows = reversed(sorted(rows))
 
-    for row in dp.ROW_TO_IR.keys():
+    for row in rows:
 
+        if not dp.ROW_TO_IR.get(row):
+            continue
         ir_head = dp.ROW_TO_IR[row]
         ir_head_parts = re.split("\(|,|\)", ir_head)
         ir_head_name = ir_head_parts[0]
@@ -63,12 +75,12 @@ def create_xml(dfMulVAl):
         parameters = doc.createElement('Parameters')
         ir.appendChild(parameters)
 
-        for i, entity in enumerate(ir_head_parts):
-            if i == 0 or entity == '':
+        for i, entity in enumerate(ir_head_parts[::-1]):
+            if entity.strip() == ir_head_name or entity.strip() == '':
                 continue
             ent = doc.createElement('Parameter')
-            ent.setAttribute('Type', entity.strip())
-            ent.appendChild(doc.createTextNode(''))
+            ent.setAttribute('Type', "IR_Head")
+            ent.appendChild(doc.createTextNode(entity.strip()))
             if parameters.firstChild is None:
                 parameters.appendChild(ent)
             else:
@@ -76,16 +88,45 @@ def create_xml(dfMulVAl):
 
         body = doc.createElement('Body')
         ir.appendChild(body)
+        for interaction_rule in dp.INTERACTION_RULES_BY_HEAD_NAME[ir_head_name]:
+            if not interaction_rule[1]:
+                continue
+            for interaction_rule_body_part in reversed(interaction_rule[1]):
+                if interaction_rule[0] != row:
+                    continue
+                ir_body_parts = re.split("\(|,|\)", interaction_rule_body_part[1])
+                body_rule_name = ir_body_parts[0]
+
+                rule = doc.createElement('Rule')
+                rule.setAttribute('Name', body_rule_name)
+
+                if root.firstChild is None:
+                    body.appendChild(rule)
+                else:
+                    body.insertBefore(rule, body.firstChild)
+                parameters = doc.createElement('Parameters')
+                rule.appendChild(parameters)
+
+                for i, entity in enumerate(ir_body_parts[::-1]):
+                    if entity.strip() == body_rule_name or entity.strip() == '':
+                        continue
+                    ent = doc.createElement('Parameter')
+                    ent.setAttribute('Type', "Entity")
+                    ent.appendChild(doc.createTextNode(entity.strip()))
+                    if parameters.firstChild is None:
+                        parameters.appendChild(ent)
+                    else:
+                        parameters.insertBefore(ent, parameters.firstChild)
 
         desc = doc.createElement('Description')
-        explenation = dfMulVAl['Explanation'][row]
-        if pd.isna(explenation):
+        explenation = dp.explanations.get(row)
+        if not explenation:
             explenation = ''
         desc.appendChild(doc.createTextNode(explenation.strip()))
         ir.appendChild(desc)
 
         technique = doc.createElement('Technique')
-        technique.appendChild(doc.createTextNode(dfMulVAl['MITRE Enterprise Technique'][row].strip()))
+        technique.appendChild(doc.createTextNode(dp.techniques[row].strip()))
         ir.appendChild(technique)
 
     xml_str = doc.toprettyxml(indent="\t")
@@ -95,16 +136,17 @@ def create_xml(dfMulVAl):
     with open(save_path_file, "w") as f:
         f.write(xml_str)
 
-
-# if __name__ == "__main__":
+# if __name__ == "_main_":
 #     path = "MulVAL to MITRE-for IR Manager.xlsx"
 #     dfMulVAl = pd.read_excel(path)
 #     create_data_structures(dfMulVAl)
-#     create_xml(dfMulVAl)
-    # print(dp.TECHNIQUE_DICT.keys())
+#     rows = dp.ROW_TO_IR.keys()
+    # create_xml(rows)
 
 def build():
     path = "MulVAL to MITRE-for IR Manager.xlsx"
     dfMulVAl = pd.read_excel(path)
     create_data_structures(dfMulVAl)
-    create_xml(dfMulVAl)
+    rows = dp.ROW_TO_IR.keys()
+    create_xml(rows)
+    print()
