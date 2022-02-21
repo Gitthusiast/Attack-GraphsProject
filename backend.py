@@ -38,10 +38,8 @@ def search_ir_by_head_name(ir_head_name):
     return dp.INTERACTION_RULES_BY_HEAD_NAME.get(ir_head_name)
 
 
-def create_xml(explanations, techniques, rows):
+def create_xml(rows):
     """
-    :param explanations: list of explanations strings
-    :param techniques: list of MITRE technique strings
     :param list of rows to inlcude in the xml
     :return:
     """
@@ -112,14 +110,14 @@ def create_xml(explanations, techniques, rows):
                         parameters.insertBefore(ent, parameters.firstChild)
 
         desc = doc.createElement('Description')
-        explenation = explanations.get(row)
+        explenation = dp.explanations.get(row)
         if not explenation:
             explenation = ''
         desc.appendChild(doc.createTextNode(explenation.strip()))
         ir.appendChild(desc)
 
         technique = doc.createElement('Technique')
-        technique.appendChild(doc.createTextNode(techniques[row].strip()))
+        technique.appendChild(doc.createTextNode(dp.techniques[row].strip()))
         ir.appendChild(technique)
 
     xml_str = doc.toprettyxml(indent="\t")
@@ -129,19 +127,17 @@ def create_xml(explanations, techniques, rows):
     with open(save_path_file, "w") as f:
         f.write(xml_str)
 
-
 # if __name__ == "__main__":
 #     path = "MulVAL to MITRE-for IR Manager.xlsx"
 #     dfMulVAl = pd.read_excel(path)
 #     create_data_structures(dfMulVAl)
 #     rows = dp.ROW_TO_IR.keys()
-#     create_xml(dp.explanations, dp.techniques, rows)
-#     print()
+#     # create_xml(rows)
 
 def build():
     path = "MulVAL to MITRE-for IR Manager.xlsx"
     dfMulVAl = pd.read_excel(path)
     create_data_structures(dfMulVAl)
     rows = dp.ROW_TO_IR.keys()
-    create_xml(dp.explanations, dp.techniques, rows)
+    create_xml(rows)
     print()

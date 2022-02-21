@@ -10,6 +10,7 @@ INTERACTION_RULES_BY_BODY_NAME = {}  # {ir_body_name: INTERACTION_RULES_BY_BODY[
 ROW_TO_IR = {}  # {row: ir_head}
 KEYWORDS_DICT = {}  # {keyword.lower(): [row]}
 TECHNIQUE_DICT = {}  # {technique: [row_number]}
+PRIMITIVE_DERIVED_DICT = {}
 
 explanations = {}  # {row, description}
 techniques = {}  # {row, technique}
@@ -76,6 +77,11 @@ def create_ir_dict(dfMulVAl):
         else:
             ROW_TO_IR.update({row: dfMulVAl['Predicate'][row]})
             add_to_ir_head_dict(dfMulVAl['Predicate'][row], row, None)
+
+        if pd.isna(dfMulVAl['Primitive/Derived'][row]):
+            PRIMITIVE_DERIVED_DICT.update({row: None})
+        else:
+            PRIMITIVE_DERIVED_DICT.update({row: dfMulVAl['Primitive/Derived'][row].lower()})
 
 
 def add_to_ir_head_dict(ir_head, row, predicates):
