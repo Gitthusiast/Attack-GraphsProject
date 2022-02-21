@@ -10,7 +10,7 @@ INTERACTION_RULES_BY_BODY_NAME = {}  # {ir_body_name: INTERACTION_RULES_BY_BODY[
 ROW_TO_IR = {}  # {row: ir_head}
 KEYWORDS_DICT = {}  # {keyword.lower(): [row]}
 TECHNIQUE_DICT = {}  # {technique: [row_number]}
-PRIMITIVE_DERIVED_DICT = {}
+PRIMITIVE_DERIVED_DICT = {}  # {row: ir_type}
 
 explanations = {}  # {row, description}
 techniques = {}  # {row, technique}
