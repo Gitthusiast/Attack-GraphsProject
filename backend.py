@@ -29,13 +29,13 @@ def search_by_keywods_in_description(keyword):
     return dp.KEYWORDS_DICT.get(keyword)
 
 
-def search_ir_by_head_name(ir_head_name):
+def search_ir_by_head(ir_head_name):
     """
     :param name of interaction rule head
     :return: list of tuples (row,ir_body) or None if no match is found
     """
 
-    return dp.INTERACTION_RULES_BY_HEAD_NAME.get(ir_head_name)
+    return dp.INTERACTION_RULES_BY_HEAD.get(ir_head_name)
 
 
 def search_by_rule_name(ir_head):
@@ -44,7 +44,7 @@ def search_by_rule_name(ir_head):
     :return: list of tuples (row,ir_body) or None if no match is found
     """
 
-    return dp.INTERACTION_RULES_BY_HEAD.get(ir_head)
+    return dp.INTERACTION_RULES_BY_HEAD_NAME.get(ir_head)
 
 
 def create_xml(rows):
