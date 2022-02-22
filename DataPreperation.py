@@ -1,10 +1,7 @@
-import pandas as pd
 import re
-import nltk
+import pandas as pd
 from nltk.corpus import stopwords
-nltk.download('stopwords')
 from xml.dom import minidom
-
 
 INTERACTION_RULES_BY_HEAD = {}  # {ir_head: [(ROW, predicates),()]}
 INTERACTION_RULES_BY_BODY = {}  # {predicate: [(row, ir_head),()]}
@@ -14,6 +11,7 @@ ROW_TO_IR = {}  # {row: ir_head}
 KEYWORDS_DICT = {}  # {keyword.lower(): [row]}
 TECHNIQUE_DICT = {}  # {technique: [row_number]}
 PRIMITIVE_DERIVED_DICT = {}
+
 explanations = {}  # {row, description}
 techniques = {}  # {row, technique}
 

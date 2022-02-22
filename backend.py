@@ -136,7 +136,71 @@ def create_xml(rows):
     with open(save_path_file, "w") as f:
         f.write(xml_str)
 
-# if __name__ == "_main_":
+
+def create_pddl(rows):
+    """
+    :param list of rows to include in the pddl
+    :return:
+    """
+    with open('pddl.txt', 'w') as f:
+        f.write('/*********/\n'
+                '/ Predicates Declarations /\n'
+                '/*********/\n')
+
+        for row in rows:
+            if not dp.ROW_TO_IR.get(row):
+                continue
+            ir_head = dp.ROW_TO_IR[row]
+            if dp.PRIMITIVE_DERIVED_DICT[row] == 'primitive':
+                f.write('primitive(' + ir_head.strip('. ') + ').\n')
+        f.write('\n')
+
+        for row in rows:
+            if not dp.ROW_TO_IR.get(row):
+                continue
+            ir_head = dp.ROW_TO_IR[row]
+            if dp.PRIMITIVE_DERIVED_DICT[row] == 'derived':
+                f.write('derived(' + ir_head.strip() + ').\n')
+        f.write('\nmeta(attackGoal(_)).\n\n')
+
+        f.write('/***************/\n'
+                '/**      Tabling Predicates          ***/\n'
+                '/* All derived predicates should be tabled */''\n'
+                '/***************/\n')
+
+        for row in rows:
+            if not dp.ROW_TO_IR.get(row):
+                continue
+            ir_head = dp.ROW_TO_IR[row]
+            ir_head_parts = re.split("\(|,|\)", ir_head)
+            ir_head_name = ir_head_parts[0]
+            if dp.PRIMITIVE_DERIVED_DICT[row] == 'derived':
+                f.write(':- table' + ir_head_name.strip('. ') + '/1.\n')
+        f.write('\n')
+        f.write('/*******/\n'
+                '/ Interaction Rules /\n'
+                '/*******/\n')
+
+        for row in rows:
+            if not dp.ROW_TO_IR.get(row):
+                continue
+            ir_head = dp.ROW_TO_IR[row]
+            for ir in dp.INTERACTION_RULES_BY_HEAD[ir_head]:
+                if not ir[1]:
+                    continue
+                if ir[0] == row:
+                    predicates = ir[1]
+                    ir_to_wirte = 'interaction_rule(\n(' + ir_head + ' :- \n'
+                    if predicates:
+                        for i, predicate in enumerate(predicates):
+                            if i == len(predicates) - 1:
+                                ir_to_wirte += predicate[1] + '),\n'
+                            else:
+                                ir_to_wirte += predicate[1] + ',\n'
+                        ir_to_wirte += 'rule_desc(\'' + dp.explanations[row].strip('. ') + '\', 1.0)).\n\n'
+                    f.write(ir_to_wirte)
+
+# if __name__ == "__main__":
 #     path = "MulVAL to MITRE-for IR Manager.xlsx"
 #     dfMulVAl = pd.read_excel(path)
 #     create_data_structures(dfMulVAl)

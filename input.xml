@@ -1,0 +1,205 @@
+<?xml version="1.0" ?>
+<SIRS>
+	<SIR Name="vulExists">
+		<Parameters>
+			<Parameter Type="IR_Head">Host</Parameter>
+			<Parameter Type="IR_Head">Prog</Parameter>
+			<Parameter Type="IR_Head">Range</Parameter>
+			<Parameter Type="IR_Head">Consequence</Parameter>
+		</Parameters>
+		<Body>
+			<Rule Name="vulExists">
+				<Parameters>
+					<Parameter Type="Entity">Host</Parameter>
+					<Parameter Type="Entity">ID</Parameter>
+					<Parameter Type="Entity">Prog</Parameter>
+				</Parameters>
+			</Rule>
+			<Rule Name="vulProperty">
+				<Parameters>
+					<Parameter Type="Entity">ID</Parameter>
+					<Parameter Type="Entity">Range</Parameter>
+					<Parameter Type="Entity">Consequence</Parameter>
+				</Parameters>
+			</Rule>
+		</Body>
+		<Description>A vulnerability exists in the Program on a Host, and it has specific ExploitRange and ExploitConsequence.
+Program is the full path of the executable that contains the security bug.</Description>
+		<Technique>Derived Environment Rule</Technique>
+	</SIR>
+	<SIR Name="vulExists">
+		<Parameters>
+			<Parameter Type="IR_Head">Host</Parameter>
+			<Parameter Type="IR_Head">Prog</Parameter>
+			<Parameter Type="IR_Head">Range</Parameter>
+			<Parameter Type="IR_Head">Consequence</Parameter>
+		</Parameters>
+		<Body>
+			<Rule Name="bugHyp">
+				<Parameters>
+					<Parameter Type="Entity">Host</Parameter>
+					<Parameter Type="Entity">Prog</Parameter>
+					<Parameter Type="Entity">Range</Parameter>
+					<Parameter Type="Entity">Consequence</Parameter>
+				</Parameters>
+			</Rule>
+		</Body>
+		<Description></Description>
+		<Technique>Derived Environment Rule</Technique>
+	</SIR>
+	<SIR Name="vulExists">
+		<Parameters>
+			<Parameter Type="IR_Head">Host</Parameter>
+			<Parameter Type="IR_Head">Prog</Parameter>
+			<Parameter Type="IR_Head">Range</Parameter>
+			<Parameter Type="IR_Head">Consequence</Parameter>
+		</Parameters>
+		<Body>
+			<Rule Name="vulExists">
+				<Parameters>
+					<Parameter Type="Entity">Host</Parameter>
+					<Parameter Type="Entity">Library</Parameter>
+					<Parameter Type="Entity">Range</Parameter>
+					<Parameter Type="Entity">Consequence</Parameter>
+				</Parameters>
+			</Rule>
+			<Rule Name="dependsOn">
+				<Parameters>
+					<Parameter Type="Entity">Host</Parameter>
+					<Parameter Type="Entity">Prog</Parameter>
+					<Parameter Type="Entity">Library</Parameter>
+				</Parameters>
+			</Rule>
+		</Body>
+		<Description></Description>
+		<Technique>Derived Environment Rule</Technique>
+	</SIR>
+	<SIR Name="vulExists">
+		<Parameters>
+			<Parameter Type="IR_Head">Host</Parameter>
+			<Parameter Type="IR_Head">ID</Parameter>
+			<Parameter Type="IR_Head">Program</Parameter>
+		</Parameters>
+		<Body/>
+		<Description>A vulnerability with identification ID exists in the Program on the Host.</Description>
+		<Technique>Fact</Technique>
+	</SIR>
+	<SIR Name="vulProperty">
+		<Parameters>
+			<Parameter Type="IR_Head">ID</Parameter>
+			<Parameter Type="IR_Head">ExploitRange</Parameter>
+			<Parameter Type="IR_Head">ExploitConsequence</Parameter>
+		</Parameters>
+		<Body/>
+		<Description>The exploitable range and consequence of the vulnerability with ID.</Description>
+		<Technique>Fact</Technique>
+	</SIR>
+	<SIR Name="bugHyp">
+		<Parameters>
+			<Parameter Type="IR_Head">Host</Parameter>
+			<Parameter Type="IR_Head">Program</Parameter>
+			<Parameter Type="IR_Head">ExploitRange</Parameter>
+			<Parameter Type="IR_Head">ExploitConsequence</Parameter>
+		</Parameters>
+		<Body/>
+		<Description>A hypothetical bug in a Program on the Host which has ExploitRange and ExploitConsequence.</Description>
+		<Technique>Fact</Technique>
+	</SIR>
+	<SIR Name="dependsOn">
+		<Parameters>
+			<Parameter Type="IR_Head">Host</Parameter>
+			<Parameter Type="IR_Head">Program</Parameter>
+			<Parameter Type="IR_Head">Library</Parameter>
+		</Parameters>
+		<Body/>
+		<Description>A Program on a Host depends on a Library, where the type of Library is also “Program”.</Description>
+		<Technique>Fact</Technique>
+	</SIR>
+	<SIR Name="execCode">
+		<Parameters>
+			<Parameter Type="IR_Head">Prin</Parameter>
+			<Parameter Type="IR_Head">Host</Parameter>
+			<Parameter Type="IR_Head">Perm</Parameter>
+		</Parameters>
+		<Body>
+			<Rule Name="hasAccount">
+				<Parameters>
+					<Parameter Type="Entity">Prin</Parameter>
+					<Parameter Type="Entity">Host</Parameter>
+					<Parameter Type="Entity">Perm</Parameter>
+				</Parameters>
+			</Rule>
+		</Body>
+		<Description>principal Prin can execute arbitrary code with privilege UserPriv on machine Host.</Description>
+		<Technique>Derived Environment Rule</Technique>
+	</SIR>
+	<SIR Name="execCode">
+		<Parameters>
+			<Parameter Type="IR_Head">P1</Parameter>
+			<Parameter Type="IR_Head">Host</Parameter>
+			<Parameter Type="IR_Head">Perm</Parameter>
+		</Parameters>
+		<Body>
+			<Rule Name="principalCompromised">
+				<Parameters>
+					<Parameter Type="Entity">P2</Parameter>
+					<Parameter Type="Entity">P1</Parameter>
+				</Parameters>
+			</Rule>
+			<Rule Name="hasAccount">
+				<Parameters>
+					<Parameter Type="Entity">P2</Parameter>
+					<Parameter Type="Entity">Host</Parameter>
+					<Parameter Type="Entity">Perm</Parameter>
+				</Parameters>
+			</Rule>
+			<Rule Name="canAccessHost">
+				<Parameters>
+					<Parameter Type="Entity">P1</Parameter>
+					<Parameter Type="Entity">Host</Parameter>
+				</Parameters>
+			</Rule>
+		</Body>
+		<Description>When a principal is compromised, any machine he has an account on will also be compromised</Description>
+		<Technique>T1078 - Valid Accounts</Technique>
+	</SIR>
+	<SIR Name="execCode">
+		<Parameters>
+			<Parameter Type="IR_Head">Prin</Parameter>
+			<Parameter Type="IR_Head">Host</Parameter>
+			<Parameter Type="IR_Head">Perm</Parameter>
+		</Parameters>
+		<Body>
+			<Rule Name="malicious">
+				<Parameters>
+					<Parameter Type="Entity">Prin</Parameter>
+				</Parameters>
+			</Rule>
+			<Rule Name="execCode">
+				<Parameters>
+					<Parameter Type="Entity">Prin</Parameter>
+					<Parameter Type="Entity">Host</Parameter>
+					<Parameter Type="Entity">Perm2</Parameter>
+				</Parameters>
+			</Rule>
+			<Rule Name="vulExists">
+				<Parameters>
+					<Parameter Type="Entity">Host</Parameter>
+					<Parameter Type="Entity">Software</Parameter>
+					<Parameter Type="Entity">localExploit</Parameter>
+					<Parameter Type="Entity">privEscalation</Parameter>
+				</Parameters>
+			</Rule>
+			<Rule Name="setuidProgram">
+				<Parameters>
+					<Parameter Type="Entity">Host</Parameter>
+					<Parameter Type="Entity">Software</Parameter>
+					<Parameter Type="Entity">Perm</Parameter>
+				</Parameters>
+			</Rule>
+		</Body>
+		<Description>Local exploit</Description>
+		<Technique>Exploitation for Client Execution (DT)
+T1068 - Exploitation for Privilege Escalation (NB)</Technique>
+	</SIR>
+</SIRS>
