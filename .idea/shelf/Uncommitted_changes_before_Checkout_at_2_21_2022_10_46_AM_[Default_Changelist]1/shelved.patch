@@ -1,0 +1,222 @@
+Index: DataPreperation.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import pandas as pd\r\nimport re\r\nimport nltk\r\nfrom nltk.corpus import stopwords\r\n# nltk.download('stopwords')\r\n\r\nINTERACTION_RULES_BY_HEAD = {}\r\nINTERACTION_RULES_BY_BODY = {}\r\nINTERACTION_RULES_BY_HEAD_NAME = {}\r\nINTERACTION_RULES_BY_BODY_NAME = {}\r\nROW_TO_IR = {}\r\nKEYWORDS_DICT = {}\r\nTECHNIQUE_DICT = {}\r\n\r\n\r\n\r\ndef create_ir_dict(dfMulVAl):\r\n    \"\"\"\r\n    This function creates a dictionary which  {interaction_rule_head: (row_number, ir_body)}\r\n    And a dictionary with {interaction_rule_head: (row_number, ir_head)}\r\n    And a dict of {row_number, ir_head}\r\n    :param path: data frame of the given xlsx file\r\n    \"\"\"\r\n\r\n    for row, IR in enumerate(dfMulVAl['Interaction Rules']):\r\n\r\n        if isinstance(IR, str):\r\n\r\n            splited_ir = IR.split(\":-\")\r\n\r\n            if len(splited_ir[0].split('\\n')) >= 2 and splited_ir[0].split('\\n')[0][0] == '%':\r\n\r\n                ir_head = splited_ir[0].split('\\n')[1]\r\n            else:\r\n                if splited_ir[0][-1] == ' ':\r\n                    ir_head = splited_ir[0][:-1]\r\n                else:\r\n                    ir_head = splited_ir[0]\r\n\r\n            ROW_TO_IR.update({row: ir_head})\r\n\r\n            if len(splited_ir) >= 2:  # check body\r\n\r\n                ir_body = re.split('\\n', splited_ir[1])\r\n                predicates = []\r\n                for predicate in ir_body:\r\n\r\n                    if len(predicate) >= 3 and predicate[1] != '%' and predicate[2] != '%':\r\n                        if predicate[-1] == \",\" or predicate[-1] == '.':\r\n                            predicate = predicate[:-1]\r\n                        predicate = predicate.strip()\r\n                        predicates.append((row, predicate))\r\n\r\n                        INTERACTION_RULES_BY_HEAD.update({ir_head: predicates})\r\n\r\n                        if predicate not in INTERACTION_RULES_BY_BODY.keys():\r\n                            INTERACTION_RULES_BY_BODY.update({predicate: [(row, ir_head)]})\r\n                        else:\r\n                            if ir_head not in INTERACTION_RULES_BY_BODY[predicate]:\r\n                                INTERACTION_RULES_BY_BODY[predicate] = [(row, ir_head)]\r\n                            else:\r\n                                INTERACTION_RULES_BY_BODY[predicate].append(row, ir_head)\r\n\r\n            else:\r\n                INTERACTION_RULES_BY_HEAD.update({ir_head: None})\r\n\r\n        else:\r\n            INTERACTION_RULES_BY_HEAD.update({dfMulVAl['Predicate'][row]: None})\r\n\r\n\r\ndef create_ir_name_dict():\r\n\r\n    for ir_head in INTERACTION_RULES_BY_HEAD.keys():\r\n        ir_head_name = ir_head.split('(')[0]\r\n        INTERACTION_RULES_BY_HEAD_NAME.update({ir_head_name: INTERACTION_RULES_BY_HEAD[ir_head]})\r\n\r\n    for ir_body in INTERACTION_RULES_BY_BODY.keys():\r\n        ir_body_name = ir_body.split('(')[0]\r\n        INTERACTION_RULES_BY_BODY_NAME.update({ir_body_name: INTERACTION_RULES_BY_BODY[ir_body]})\r\n\r\n\r\ndef create_explanation_keyword_dict(dfMulVAl):\r\n    \"\"\"\r\n    This function creates the KEYWORDS_DICT which keys are keywords and values are row numbers\r\n    :param dfMulVAl: data frame of the given xlsx file\r\n    \"\"\"\r\n\r\n    english_stopwords = frozenset(stopwords.words('english'))\r\n\r\n    for row, explanation in enumerate(dfMulVAl['Explanation']):\r\n\r\n        if isinstance(explanation, str):\r\n\r\n            keywords = re.split(\"\\n| |\\.|,|\\(|\\)|\\\"|-|:|”|“|’\", explanation)\r\n            for keyword in keywords:\r\n                if keyword.lower() not in english_stopwords and len(keyword) > 1:\r\n                    if keyword.lower() not in KEYWORDS_DICT.keys():\r\n                        KEYWORDS_DICT.update({keyword.lower(): [row]})\r\n                    else:\r\n                        if row not in KEYWORDS_DICT[keyword.lower()]:\r\n                            KEYWORDS_DICT[keyword.lower()].append(row)\r\n\r\n\r\ndef create_MITRE_technique_dict(dfMulVAl):\r\n\r\n    \"\"\"\r\n    This function creates the TECHNIQUE_DICT : {technique: row_number}\r\n    :param dfMulVAl: data frame of the given xlsx file\r\n    \"\"\"\r\n\r\n    for row, explanation in enumerate(dfMulVAl['MITRE Enterprise Technique']):\r\n\r\n        if isinstance(explanation, str):\r\n\r\n            techniques = re.split(\"\\n\", explanation)\r\n            for technique in techniques:\r\n                if technique == '':\r\n                    continue\r\n                technique = technique.strip()\r\n                if technique not in TECHNIQUE_DICT.keys():\r\n                    TECHNIQUE_DICT.update({technique: [row]})\r\n                else:\r\n                    if row not in TECHNIQUE_DICT[technique]:\r\n                        TECHNIQUE_DICT[technique].append(row)\r\n\r\ndef create_predicate_dict(dfMulVAl):\r\n    \"\"\"\r\n        This function creates the PREDICATE_DICT : {predicate: (number_row, Primitive/dderived)}\r\n        :param dfMulVAl: data frame of the given xlsx file\r\n    \"\"\"\r\n    for row, explanation in enumerate(dfMulVAl['']):\r\n\r\n        if isinstance(explanation, str):\r\n\r\n            techniques = re.split(\"\\n\", explanation)\r\n            for technique in techniques:\r\n                if technique == '':\r\n                    continue\r\n                technique = technique.strip()\r\n                if technique not in TECHNIQUE_DICT.keys():\r\n                    TECHNIQUE_DICT.update({technique: [row]})\r\n                else:\r\n                    if row not in TECHNIQUE_DICT[technique]:\r\n                        TECHNIQUE_DICT[technique].append(row)\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/DataPreperation.py b/DataPreperation.py
+--- a/DataPreperation.py	
++++ b/DataPreperation.py	
+@@ -1,16 +1,14 @@
+ import pandas as pd
+ import re
+-import nltk
+ from nltk.corpus import stopwords
+-# nltk.download('stopwords')
+ 
+-INTERACTION_RULES_BY_HEAD = {}
+-INTERACTION_RULES_BY_BODY = {}
+-INTERACTION_RULES_BY_HEAD_NAME = {}
+-INTERACTION_RULES_BY_BODY_NAME = {}
+-ROW_TO_IR = {}
+-KEYWORDS_DICT = {}
+-TECHNIQUE_DICT = {}
++INTERACTION_RULES_BY_HEAD = {}  #{full IR head: list of (row, one ir body)
++INTERACTION_RULES_BY_BODY = {}  #{first full IR body: list of (row, one ir body)
++INTERACTION_RULES_BY_HEAD_NAME = {} #{IR head name: list of (row, one ir body)
++INTERACTION_RULES_BY_BODY_NAME = {} #{IR body name: list of (row, one ir body)
++ROW_TO_IR = {}  #{row: full IR head}
++KEYWORDS_DICT = {}  #{keyword: list of rows where is that technique}
++TECHNIQUE_DICT = {} #{technique: list of rows where is that technique}
+ 
+ 
+ 
+Index: frontend.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from kivy.app import App\r\nfrom kivy.lang import Builder\r\nfrom kivy.uix.widget import Widget\r\nfrom kivy.properties import ObjectProperty\r\nfrom kivy.core.window import Window\r\n# import backend as b\r\n\r\nkv = Builder.load_file(\"kivy.kv\")\r\n\r\n\r\nclass grid(Widget):\r\n    search_sir_head = ObjectProperty(None)\r\n    search_rule = ObjectProperty(None)\r\n    search_in_description = ObjectProperty(None)\r\n\r\n    #function that do the search\r\n    def search(self):\r\n        # for key in dp.TECHNIQUE_DICT:\r\n        #     print(key)\r\n        pass\r\n\r\n\r\n\"\"\"\r\nThis class inherited from App: should be like App\r\n@:return instance of class that build the main window of the app\r\n\"\"\"\r\nclass app(App):\r\n\r\n    def build(self):\r\n        Window.clearcolor = (240/250,240/250,240/250,240/250)\r\n        # b.build()\r\n        return grid()\r\n\r\n\"\"\"\r\n@:return main that started the application\r\n\"\"\"\r\nif __name__ == \"__main__\":\r\n    app().run()
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/frontend.py b/frontend.py
+--- a/frontend.py	
++++ b/frontend.py	
+@@ -1,38 +1,110 @@
+-from kivy.app import App
++from kivymd.app import MDApp
+ from kivy.lang import Builder
+ from kivy.uix.widget import Widget
+ from kivy.properties import ObjectProperty
+ from kivy.core.window import Window
+-# import backend as b
++import backend as b
++import DataPreperation as DaraPrep
++from kivymd.uix.datatables import MDDataTable
++from kivy.metrics import dp
++from kivymd.uix.screen import Screen
++
+ 
+ kv = Builder.load_file("kivy.kv")
+ 
+-
+ class grid(Widget):
+     search_sir_head = ObjectProperty(None)
+     search_rule = ObjectProperty(None)
+     search_in_description = ObjectProperty(None)
+ 
++
++    def choose_technique(self, value):
++        self.ids.technique.text = value
++        # print(hello)
++        # print(self.ids.technique.text)
++
++    def create_datatables(self):
++        # pop_window = Popup(title=Results, size_hint=(0.5, 0.6))
++        screen = Screen()
++        table = MDDataTable(
++            column_data = [
++                ("Interaction Rule Set", dp(30)),
++                ("Description", dp(30)),
++                ("Technique", dp(30))
++            ]
++        )
++        screen.add_widget(table)
++        return screen
++        # return table
++
++
++    def rows(self, lst, a_list):
++        if a_list != None:
++            if len(lst) != 0:
++                for row in lst:
++                    if row not in rule:
++                        lst.remove(row)
++            else:
++                lst = [tup[0] for tup in a_list]
++        return lst
++
+     #function that do the search
+     def search(self):
+-        # for key in dp.TECHNIQUE_DICT:
+-        #     print(key)
+-        pass
++        #sir head
++        if self.search_sir_head.text != '':
++            sir_head = b.search_ir_by_head_name(self.search_sir_head.text)
++        #rule
++        if self.search_rule.text != '':
++           rule = b.search_ir_by_head_(self.search_rule.text)
++        #description
++        if self.search_in_description.text != '':
++            description = b.search_by_keywods_in_description(self.search_in_description.text)
++        # for ir_head in sir_head
++        #     pass
++
++        #techjique
++        if self.ids.technique.text != '':
++            technique = b.search_by_technique(self.ids.technique.text)
++        # self.create_datatables()
+ 
++        lst = list()
++        #for ir head
++        if sir_head != None:
++            lst = [tup[0] for tup in sir_head]
++        #for rule name
++        lst = rows(lst, rule)
++        #for keywords in description
++        lst = rows(lst, description)
++        #for technique
++        lst = rows(lst, technique)
++
++        #search for all information in the rows
++        res = list()
++        for row in lst:
++            ir_head = DataPrep.ROW_TO_IR.get(row)
++            ir_bodies = b.search_ir_by_head_(ir_head)
++            str = str(ir_head) + " :- "
++            for body in ir_bodies:
++                str += body
++                str += " , "
++            str = str[:-4]
++            res.append(str)
+ 
+ """
+-This class inherited from App: should be like App
+-@:return instance of class that build the main window of the app
++This class inherited from MDApp should be like App
++@return instance of class that build the main window of the app
+ """
+-class app(App):
++class app(MDApp):
+ 
+     def build(self):
+-        Window.clearcolor = (240/250,240/250,240/250,240/250)
+-        # b.build()
++        b.build()
++        Window.clearcolor = (240250,240250,240250,240250)
+         return grid()
+ 
++
++
+ """
+-@:return main that started the application
++@return main that started the application
+ """
+ if __name__ == "__main__":
+-    app().run()
+\ No newline at end of file
++    app().run()
+Index: backend.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import re\r\nimport DataPreperation as dp\r\nimport pandas as pd\r\nfrom xml.dom import minidom\r\n\r\n\r\ndef create_data_structures(dfMulVAl):\r\n    dp.create_ir_dict(dfMulVAl)\r\n    dp.create_ir_name_dict()\r\n    dp.create_explanation_keyword_dict(dfMulVAl)\r\n    dp.create_MITRE_technique_dict(dfMulVAl)\r\n\r\n\r\ndef search_by_technique(technique):\r\n    \"\"\"\r\n    :param technique: MITRE attack technique\r\n    :return: list of row numbers or None if no match is found\r\n    \"\"\"\r\n\r\n    return dp.TECHNIQUE_DICT.get(technique)\r\n\r\n\r\ndef search_by_keywods_in_description(keyword):\r\n    \"\"\"\r\n    :param keyword: keyword\r\n    :return: list of row numbers or None if no match is found\r\n    \"\"\"\r\n\r\n    return dp.KEYWORDS_DICT.get(keyword)\r\n\r\n\r\ndef search_ir_by_head_name(ir_head_name):\r\n    \"\"\"\r\n    :param name of interaction rule head\r\n    :return: list of tuples (row,ir_body) or None if no match is found\r\n    \"\"\"\r\n\r\n    return dp.INTERACTION_RULES_BY_HEAD_NAME.get(ir_head_name)\r\n\r\n\r\ndef create_xml(dfMulVAl):\r\n    \"\"\"\r\n    :param dfMulVAl: data frame containing the data from the xlsx file\r\n    :return:\r\n    \"\"\"\r\n    doc = minidom.Document()\r\n    root = doc.createElement('SIRS')\r\n    doc.appendChild(root)\r\n\r\n    for row in dp.ROW_TO_IR.keys():\r\n\r\n        ir_head = dp.ROW_TO_IR[row]\r\n        ir_head_parts = re.split(\"\\(|,|\\)\", ir_head)\r\n        ir_head_name = ir_head_parts[0]\r\n\r\n        ir = doc.createElement('SIR')\r\n        ir.setAttribute('Name', ir_head_name)\r\n\r\n        if root.firstChild is None:\r\n            root.appendChild(ir)\r\n        else:\r\n            root.insertBefore(ir, root.firstChild)\r\n        parameters = doc.createElement('Parameters')\r\n        ir.appendChild(parameters)\r\n\r\n        for i, entity in enumerate(ir_head_parts):\r\n            if i == 0 or entity == '':\r\n                continue\r\n            ent = doc.createElement('Parameter')\r\n            ent.setAttribute('Type', entity.strip())\r\n            ent.appendChild(doc.createTextNode(''))\r\n            if parameters.firstChild is None:\r\n                parameters.appendChild(ent)\r\n            else:\r\n                parameters.insertBefore(ent, parameters.firstChild)\r\n\r\n        body = doc.createElement('Body')\r\n        ir.appendChild(body)\r\n\r\n        desc = doc.createElement('Description')\r\n        explenation = dfMulVAl['Explanation'][row]\r\n        if pd.isna(explenation):\r\n            explenation = ''\r\n        desc.appendChild(doc.createTextNode(explenation.strip()))\r\n        ir.appendChild(desc)\r\n\r\n        technique = doc.createElement('Technique')\r\n        technique.appendChild(doc.createTextNode(dfMulVAl['MITRE Enterprise Technique'][row].strip()))\r\n        ir.appendChild(technique)\r\n\r\n    xml_str = doc.toprettyxml(indent=\"\\t\")\r\n\r\n    save_path_file = \"output.xml\"\r\n\r\n    with open(save_path_file, \"w\") as f:\r\n        f.write(xml_str)\r\n\r\n\r\n# if __name__ == \"__main__\":\r\n#     path = \"MulVAL to MITRE-for IR Manager.xlsx\"\r\n#     dfMulVAl = pd.read_excel(path)\r\n#     create_data_structures(dfMulVAl)\r\n#     create_xml(dfMulVAl)\r\n    # print(dp.TECHNIQUE_DICT.keys())\r\n\r\ndef build():\r\n    path = \"MulVAL to MITRE-for IR Manager.xlsx\"\r\n    dfMulVAl = pd.read_excel(path)\r\n    create_data_structures(dfMulVAl)\r\n    create_xml(dfMulVAl)\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backend.py b/backend.py
+--- a/backend.py	
++++ b/backend.py	
+@@ -31,13 +31,22 @@
+ 
+ def search_ir_by_head_name(ir_head_name):
+     """
+-    :param name of interaction rule head
++    :param name of interaction rule head name (shorter)
+     :return: list of tuples (row,ir_body) or None if no match is found
+     """
+ 
+     return dp.INTERACTION_RULES_BY_HEAD_NAME.get(ir_head_name)
+ 
+ 
++def search_ir_by_head_(ir_head):
++    """
++    :param name of interaction rule head (longer)
++    :return: list of tuples (row,ir_body) or None if no match is found
++    """
++
++    return dp.INTERACTION_RULES_BY_HEAD_.get(ir_head)
++
++
+ def create_xml(dfMulVAl):
+     """
+     :param dfMulVAl: data frame containing the data from the xlsx file
+@@ -103,8 +112,17 @@
+ #     create_xml(dfMulVAl)
+     # print(dp.TECHNIQUE_DICT.keys())
+ 
++
+ def build():
+     path = "MulVAL to MITRE-for IR Manager.xlsx"
+     dfMulVAl = pd.read_excel(path)
+     create_data_structures(dfMulVAl)
+     create_xml(dfMulVAl)
++
++    # print("INTERACTION_RULES_BY_HEAD: ", dp.INTERACTION_RULES_BY_HEAD)
++    # print("INTERACTION_RULES_BY_BODY: ", dp.INTERACTION_RULES_BY_BODY)
++    # print("INTERACTION_RULES_BY_HEAD_NAME: ", dp.INTERACTION_RULES_BY_HEAD_NAME)
++    # print("INTERACTION_RULES_BY_BODY_NAME: ", dp.INTERACTION_RULES_BY_BODY_NAME)
++    # print("ROW_TO_IR: ", dp.ROW_TO_IR)
++    # print("KEYWORDS_DICT: ", dp.KEYWORDS_DICT)
++    # print("TECHNIQUE_DICT: ", dp.TECHNIQUE_DICT)
+\ No newline at end of file
