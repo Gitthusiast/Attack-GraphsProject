@@ -47,6 +47,84 @@ def search_by_rule_name(ir_head):
     return dp.INTERACTION_RULES_BY_HEAD_NAME.get(ir_head)
 
 
+def help_search(lst, a_list):
+    if a_list is not None:
+        if len(lst) != 0:
+            tup_list = set()
+            for row in lst:
+                if row not in a_list:
+                    tup_list.add(row)
+            for num_row in tup_list:
+                lst.remove(num_row)
+        else:
+            tmp_list = [num for num in a_list]
+            for item in tmp_list:
+                if type(item) == int:
+                    lst.add(item)
+                else:
+                    lst.add(item[0])
+    return lst
+
+def search(search_sir_head, search_rule, search_in_description, technique_spinner):
+    """
+    :param instance - of click on show results button
+    :return: find all the common rows and return array of tuples that conntains explanation, ir and technique name
+    """
+    # sir head
+    sir_head, rule, description, technique = None, None, None, None
+    if search_sir_head != '':
+        sir_head = search_ir_by_head(search_sir_head)
+    # rule
+    if search_rule != '':
+        rule = search_by_rule_name(search_rule)
+    # description
+    if search_in_description != '':
+        description = search_by_keywods_in_description(search_in_description)
+    # technique
+    if technique_spinner != '':
+        technique = search_by_technique(technique_spinner)
+
+    rows = set()
+    # for sir head
+    if sir_head != None:
+        rows.update([tup[0] for tup in sir_head])
+    # for rule
+    rows = help_search(rows, rule)
+    # for keyword in description
+    rows = help_search(rows, description)
+    # for technique
+    rows = help_search(rows, technique)
+    rows = sorted(rows)
+
+    res = list()
+    for row in rows:
+        expla = dp.explanations.get(row)
+        if expla == None:
+            expla = ''
+        ir_head = dp.ROW_TO_IR.get(row)
+        ir = ''
+        if ir_head == None:
+            ir = ''
+        else:
+            ir = ir_head + ":- "
+            ir_bodies = search_ir_by_head(ir_head)
+            for ir_body in ir_bodies:
+                if ir_body[1] == None:
+                    break
+                elif len(ir_body[1]) != 1:
+                    ir += ir_body[1][1][1] + ", "
+            if ir != "":
+                ir = ir[:-2]
+                ir += '.'
+        techni = dp.techniques.get(row)
+        if techni == None:
+            techni = ""
+        res.append((expla, ir, techni))
+    # print(res)
+    # print(rows)
+    return res, rows
+
+
 def create_xml(rows):
     """
     :param list of rows to inlcude in the xml
