@@ -34,7 +34,6 @@ class grid(MDApp):
         input_layout = GridLayout(cols=2)
         buttons_layout = GridLayout(cols=3, spacing=10, padding=[200, 30, 0, 0])
         import_xml_layout = GridLayout(cols=2)
-        results_layout = BoxLayout(orientation='vertical')
 
         sir_search_label = Label(text='[color=ff000] Search by SIR head name: [/color]', markup=True)
         input_layout.add_widget(sir_search_label)
@@ -128,12 +127,11 @@ class grid(MDApp):
                 ("Technique", dp(40))
             ]
         )
-        results_layout.add_widget(self.data_tables)
 
         page_layout.add_widget(input_layout)
         page_layout.add_widget(buttons_layout)
         page_layout.add_widget(import_xml_layout)
-        page_layout.add_widget(results_layout)
+        page_layout.add_widget(self.data_tables)
         # screen.add_widget(self.data_tables)
         b.build()
         return page_layout
