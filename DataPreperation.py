@@ -173,7 +173,6 @@ def read_from_xml(path):
 
                     if len(head_entities) != 0:
                         ir_head = ir_head + '(' + ','.join(head_entities) + ')'
-                        print(ir_head + " :- ")
 
                 elif ir_part.localName == 'Body':
 
@@ -204,20 +203,15 @@ def read_from_xml(path):
                     ROW_TO_IR.update({sir_num: ir_head})
 
                 elif ir_part.localName == 'Description':
-                    print("Description:")
                     for description in ir_part.childNodes:
                         if description.nodeType == minidom.Node.TEXT_NODE:
-                            print(description.data)
                             explanations.update({sir_num: description.data})
                 elif ir_part.localName == 'Technique':
-                    print("Technique:")
                     for technique in ir_part.childNodes:
                         if technique.nodeType == minidom.Node.TEXT_NODE:
-                            print(technique.data)
                             techniques.update({sir_num: technique.data})
     create_explanation_keyword_dict(explanations)
     create_MITRE_technique_dict(techniques)
-    print()
 
 # path = 'C:\\Users\\ADMIN\\Documents\\AttackGraphs\\Attack-GraphsProject\\input.xml'
 # read_from_xml(path)
