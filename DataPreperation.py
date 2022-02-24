@@ -15,7 +15,6 @@ PRIMITIVE_DERIVED_DICT = {}  # {row: ir_type}
 explanations = {}  # {row, description}
 techniques = {}  # {row, technique}
 
-
 def create_ir_dict(dfMulVAl):
     """
     This function creates a dictionary {interaction_rule_head: (row_number, ir_body)}
@@ -179,9 +178,13 @@ def read_from_xml(path):
                     predicates = []
                     for rule in ir_part.childNodes:
                         body_entities = []
+                        body_rule = ''
                         if rule.nodeType == minidom.Node.ELEMENT_NODE:
                             body_rule = rule.attributes['Name'].value
                             for parameters in rule.childNodes:
+                                body_entities = []
+                                if parameters.nodeType == minidom.Node.TEXT_NODE:
+                                    continue
                                 if parameters.nodeType == minidom.Node.ELEMENT_NODE:
                                     if parameters.localName == 'Parameters':
                                         for parameter in parameters.childNodes:
@@ -191,16 +194,20 @@ def read_from_xml(path):
                                         body_rule = body_rule + '(' + ','.join(body_entities) + ')'
                                         predicates.append((sir_num, body_rule))
 
-                                        INTERACTION_RULES_BY_BODY.update({body_rule: (sir_num, ir_head)})
-                                        INTERACTION_RULES_BY_BODY_NAME.update({body_rule.split('(')[0]: (sir_num, ir_head)})
+                                    if not INTERACTION_RULES_BY_BODY.get(body_rule):
+                                        INTERACTION_RULES_BY_BODY.update({body_rule: [(sir_num, ir_head)]})
+                                        INTERACTION_RULES_BY_BODY_NAME.update({body_rule.split('(')[0]: [(sir_num, ir_head)]})
 
-                    if not INTERACTION_RULES_BY_HEAD.get(ir_head):
-                        INTERACTION_RULES_BY_HEAD.update({ir_head: predicates})
-                        INTERACTION_RULES_BY_HEAD_NAME.update({ir_head.split('(')[0]: predicates})
-                    else:
-                        INTERACTION_RULES_BY_HEAD[ir_head].extend(predicates)
-                        INTERACTION_RULES_BY_HEAD_NAME[ir_head.split('(')[0]].extend(predicates)
-                    ROW_TO_IR.update({sir_num: ir_head})
+                                    elif (sir_num, ir_head) not in INTERACTION_RULES_BY_BODY[body_rule]:
+                                        INTERACTION_RULES_BY_BODY[body_rule].append((sir_num, ir_head))
+                                        INTERACTION_RULES_BY_BODY_NAME[body_rule.split('(')[0]].append((sir_num, ir_head))
+                            if not INTERACTION_RULES_BY_HEAD.get(ir_head):
+                                INTERACTION_RULES_BY_HEAD.update({ir_head: [(sir_num, predicates)]})
+                                INTERACTION_RULES_BY_HEAD_NAME.update({ir_head.split('(')[0]: [(sir_num, predicates)]})
+                            elif (sir_num, predicates) not in INTERACTION_RULES_BY_HEAD[ir_head]:
+                                INTERACTION_RULES_BY_HEAD[ir_head].append((sir_num, predicates))
+                                INTERACTION_RULES_BY_HEAD_NAME[ir_head.split('(')[0]].append((sir_num, predicates))
+                            ROW_TO_IR.update({sir_num: ir_head})
 
                 elif ir_part.localName == 'Description':
                     for description in ir_part.childNodes:

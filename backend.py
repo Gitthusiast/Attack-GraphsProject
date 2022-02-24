@@ -122,8 +122,8 @@ def search(search_sir_head, search_rule, search_in_description, technique_spinne
         if techni is None:
             techni = ""
         res.append((expla, ir, techni))
-    # print(res)
-    # print(rows)
+    print(res)
+    print(rows)
     return res, rows
 
 
@@ -280,6 +280,20 @@ def create_pddl(rows):
                         ir_to_wirte += 'rule_desc(\'' + dp.explanations[row].strip('. ') + '\', 1.0)).\n\n'
                     f.write(ir_to_wirte)
 
+
+def empty_dicts():
+    dp.INTERACTION_RULES_BY_HEAD = {}  # {ir_head: [(ROW, predicates),()]}
+    dp.INTERACTION_RULES_BY_BODY = {}  # {predicate: [(row, ir_head),()]}
+    dp.INTERACTION_RULES_BY_HEAD_NAME = {}  # {ir_head_name: [(ROW, predicates),()]}
+    dp.INTERACTION_RULES_BY_BODY_NAME = {}  # {ir_body_name: INTERACTION_RULES_BY_BODY[ir_body]}
+    dp.ROW_TO_IR = {}  # {row: ir_head}
+    dp.KEYWORDS_DICT = {}  # {keyword.lower(): [row]}
+    dp.TECHNIQUE_DICT = {}  # {technique: [row_number]}
+    dp.PRIMITIVE_DERIVED_DICT = {}  # {row: ir_type}
+
+    dp.explanations = {}  # {row, description}
+    dp.xtechniques = {}  # {row, technique}
+
 def read_from_xml(path):
     dp.read_from_xml(path)
 
@@ -290,10 +304,8 @@ def read_from_xml(path):
 #     rows = dp.ROW_TO_IR.keys()
     # create_xml(rows)
 
-def build():
-    path = "MulVAL to MITRE-for IR Manager.xlsx"
+def build(path):
+    # path = "MulVAL to MITRE-for IR Manager.xlsx"
     dfMulVAl = pd.read_excel(path)
     create_data_structures(dfMulVAl)
     rows = dp.ROW_TO_IR.keys()
-    create_xml(rows)
-    print()

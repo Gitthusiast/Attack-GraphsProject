@@ -1,5 +1,6 @@
 from kivy.app import App
 from kivy.lang import Builder
+import os.path
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
@@ -43,8 +44,8 @@ class grid(MDApp):
     def build(self):
         page_layout = GridLayout(cols=1)  # pos_hint ={'center_x':.43, 'center_y':.6})
         input_layout = GridLayout(cols=2)
-        buttons_layout = GridLayout(cols=3, spacing=10, padding=[200, 30, 0, 0])
-        import_xml_layout = GridLayout(cols=2)
+        buttons_layout = GridLayout(cols=5, spacing=10, padding=[100, 30, 0, 0])
+        # import_xml_layout = GridLayout(cols=2)
 
         sir_search_label = Label(text='[color=ff000] Search by SIR head name: [/color]', markup=True)
         input_layout.add_widget(sir_search_label)
@@ -127,25 +128,26 @@ class grid(MDApp):
         buttons_layout.add_widget(export_XML)
 
         self.xml_file_path = TextInput(multiline=True, size_hint=(0.1, None), height=35)
-        import_xml_layout.add_widget(self.xml_file_path)
+        buttons_layout.add_widget(self.xml_file_path)
 
-        import_XML = Button(text='import XML', size_hint=(None, None), height=35, width=120, pos_hint=(500, 0.7),
+        import_XML = Button(text='import file', size_hint=(None, None), height=35, width=120, pos_hint=(500, 0.7),
                             background_color=(0.3, 0.4, 0.5, 0.7))
-        import_XML.bind(on_press=self.read_from_xml)
-        import_xml_layout.add_widget(import_XML)
+        import_XML.bind(on_press=self.read_from_file)
+        buttons_layout.add_widget(import_XML)
 
         self.data_table = MDDataTable(
             column_data=[
-                ("Interaction Rule Set", dp(40)),
-                ("Description", dp(40)),
-                ("Technique", dp(40))
-            ]
+                ("Description", dp(50)),
+                ("Interaction Rule Set", dp(50)),
+                ("Technique", dp(50))
+            ],
+            use_pagination=True,
+            rows_num=2
         )
         page_layout.add_widget(input_layout)
         page_layout.add_widget(buttons_layout)
-        page_layout.add_widget(import_xml_layout)
         page_layout.add_widget(self.data_table)
-        b.build()
+        b.build('MulVAL to MITRE-for IR Manager.xlsx')
         return page_layout
 
     def perform_results(self, instance):
@@ -173,10 +175,16 @@ class grid(MDApp):
             rows = res[1]
         b.create_pddl(rows)
 
-    def read_from_xml(self, instance):
+    def read_from_file(self, instance):
 
         path = self.xml_file_path.text
-        b.read_from_xml(path)
+        os.path.isfile(path)
+        if path[-4:] == '.xml':
+            # b.empty_dicts()
+            b.read_from_xml(path)
+        elif path[-5:] == '.xlsx':
+            b.empty_dicts()
+            b.build(path)
 
 
 """
