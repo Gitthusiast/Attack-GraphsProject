@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <SIRS>
-	<SIR Name="vulExists">
+	<SIR Name="GilaMonster">
 		<Parameters>
 			<Parameter Type="IR_Head">Host</Parameter>
 			<Parameter Type="IR_Head">Prog</Parameter>
