@@ -48,7 +48,7 @@ class grid(MDApp):
         technique_search_label = Label(text='[color=ff000] Search by technique name:', markup=True)
         input_layout.add_widget(technique_search_label)
         self.technique_spinner = Spinner(text='technique', size_hint=(0.7, None), height=35,
-                                         values=['Derived Environment Rule', 'Fact', 'T1078 - Valid Accounts',
+                                         values=['', 'Derived Environment Rule', 'Fact', 'T1078 - Valid Accounts',
                                                  'Exploitation for Client Execution (DT)',
                                                  'T1068 - Exploitation for Privilege Escalation (NB)',
                                                  'Exploitation for Privilege Escalation (DT)',
@@ -105,7 +105,7 @@ class grid(MDApp):
         show_results = \
             Button(text='Show results', size_hint=(None, None), height=35, width=120, pos_hint=(500, 0.7),
                    background_color=(0.3, 0.4, 0.5, 0.7))
-        show_results.bind(on_press=self.search)
+        show_results.bind(on_press=self.show_results)
 
         self.data_tables = MDDataTable(
             column_data=[
@@ -122,79 +122,17 @@ class grid(MDApp):
         return page_layout
 
 
-    def help_search(self, lst, a_list):
-        if a_list is not None:
-            if len(lst) != 0:
-                tup_list = set()
-                for row in lst:
-                    if row not in a_list:
-                        tup_list.add(row)
-                for num_row in tup_list:
-                    lst.remove(num_row)
-            else:
-                tmp_list = [num for num in a_list]
-                for item in tmp_list:
-                    if type(item) == int:
-                        lst.add(item)
-                    else:
-                        lst.add(item[0])
-        return lst
+    def show_results(self, instance):
+        results = b.search(self.search_sir_head.text, self.search_rule.text, self.search_in_description.text, self.technique_spinner.text)
 
-    # function that do the search
-    def search(self, instance):
-        # sir head
-        sir_head, rule, description, technique = None, None, None, None
-        if self.search_sir_head.text != '':
-            sir_head = b.search_ir_by_head_name(self.search_sir_head.text)
-        # rule
-        if self.search_rule.text != '':
-            rule = b.search_by_rule_name(self.search_rule.text)
-        # description
-        if self.search_in_description.text != '':
-            description = b.search_by_keywods_in_description(self.search_in_description.text)
-        # technique
-        if self.technique_spinner.text != '':
-            technique = b.search_by_technique(self.technique_spinner.text)
 
-        rows = set()
-        # for sir head
-        if sir_head != None:
-            rows.update([tup[0] for tup in sir_head])
-        # for rule
-        rows = self.help_search(rows, rule)
-        # for keyword in description
-        rows = self.help_search(rows, description)
-        # for technique
-        rows = self.help_search(rows, technique)
-        rows = sorted(rows)
+    def create_XML(self):
+        pass
 
-        res = list()
-        for row in rows:
-            expla = DataPrep.explanations.get(row)
-            # if expla == None:
-            #     expla = ""
-            ir_head = DataPrep.ROW_TO_IR.get(row)
-            ir = ""
-            if ir_head == None:
-                ir = ""
-            else:
-                ir = ir_head + ":- "
-                ir_bodies = b.search_ir_by_head(ir_head)
-                for ir_body in ir_bodies:
-                    if ir_body[1] == None:
-                        break
-                    elif len(ir_body[1]) != 1:
-                        ir += ir_body[1][1][1] + ", "
-                if ir != "":
-                    ir = ir[:-2]
-                    ir += '.'
-            techni = DataPrep.techniques.get(row)
-            if techni == None:
-                techni = ""
-            res.append((expla, ir, techni))
-        # self.create_datatables()
-        print(res)
-        return res
+
+    def create_pddl(self):
+        pass
+
 
 
 """
