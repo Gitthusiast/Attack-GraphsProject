@@ -25,9 +25,22 @@ class grid(MDApp):
         self.search_rule = ObjectProperty(None)
         self.search_in_description = ObjectProperty(None)
         self.technique_spinner = None
+        self.page_layout = None
+        self.input_layout = None
+        self.data_table = None
+
+    # def create_datatables(self):
+    #     data_tables = MDDataTable(
+    #         column_data=[
+    #             ("Interaction Rule Set", dp(40)),
+    #             ("Description", dp(40)),
+    #             ("Technique", dp(40))
+    #         ]
+    #     )
+    #     return data_tables
 
     def build(self):
-        page_layout = GridLayout(cols=1)
+        page_layout = GridLayout(cols=1) #, pos_hint ={'center_x':.43, 'center_y':.6})
         input_layout = GridLayout(cols=2)
 
         sir_search_label = Label(text='[color=ff000] Search by SIR head name: [/color]', markup=True)
@@ -105,25 +118,26 @@ class grid(MDApp):
         show_results = \
             Button(text='Show results', size_hint=(None, None), height=35, width=120, pos_hint=(500, 0.7),
                    background_color=(0.3, 0.4, 0.5, 0.7))
-        show_results.bind(on_press=self.show_results)
+        show_results.bind(on_press=self.perform_results)
 
-        self.data_tables = MDDataTable(
+        page_layout.add_widget(input_layout)
+        page_layout.add_widget(show_results)
+        self.data_table = MDDataTable(
             column_data=[
                 ("Interaction Rule Set", dp(40)),
                 ("Description", dp(40)),
                 ("Technique", dp(40))
             ]
         )
-        page_layout.add_widget(input_layout)
-        page_layout.add_widget(show_results)
-        page_layout.add_widget(self.data_tables)
-        # screen.add_widget(self.data_tables)
+        page_layout.add_widget(self.data_table)
         b.build()
         return page_layout
 
 
-    def show_results(self, instance):
-        results = b.search(self.search_sir_head.text, self.search_rule.text, self.search_in_description.text, self.technique_spinner.text)
+    def perform_results(self, instance):
+        results = b.search(self.search_sir_head.text, self.search_rule.text, self.search_in_description.text, self.technique_spinner.text)[0]
+        # print(results)
+        self.data_table.row_data = results
 
 
     def create_XML(self):
