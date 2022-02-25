@@ -178,13 +178,13 @@ class grid(MDApp):
     def read_from_file(self, instance):
 
         path = self.xml_file_path.text
-        os.path.isfile(path)
-        if path[-4:] == '.xml':
-            # b.empty_dicts()
-            b.read_from_xml(path)
-        elif path[-5:] == '.xlsx':
-            b.empty_dicts()
-            b.build(path)
+        if os.path.isfile(path):
+            if path[-4:] == '.xml':
+                b.empty_dicts()
+                b.read_from_xml(path)
+            elif path[-5:] == '.xlsx':
+                b.empty_dicts()
+                b.build(path)
 
 
 """

@@ -2,148 +2,32 @@
 <SIRS>
 	<SIR Name="execCode">
 		<Parameters>
-			<Parameter Type="IR_Head">Prin</Parameter>
+			<Parameter Type="IR_Head">P1</Parameter>
 			<Parameter Type="IR_Head">Host</Parameter>
 			<Parameter Type="IR_Head">Perm</Parameter>
 		</Parameters>
 		<Body>
-			<Rule Name="malicious">
+			<Rule Name="principalCompromised">
 				<Parameters>
-					<Parameter Type="Entity">Prin</Parameter>
+					<Parameter Type="Entity">P2</Parameter>
+					<Parameter Type="Entity">P1</Parameter>
 				</Parameters>
 			</Rule>
-			<Rule Name="execCode">
+			<Rule Name="hasAccount">
 				<Parameters>
-					<Parameter Type="Entity">Prin</Parameter>
+					<Parameter Type="Entity">P2</Parameter>
 					<Parameter Type="Entity">Host</Parameter>
-					<Parameter Type="Entity">Perm2</Parameter>
-				</Parameters>
-			</Rule>
-			<Rule Name="vulExists">
-				<Parameters>
-					<Parameter Type="Entity">Host</Parameter>
-					<Parameter Type="Entity">Software</Parameter>
-					<Parameter Type="Entity">localExploit</Parameter>
-					<Parameter Type="Entity">privEscalation</Parameter>
-				</Parameters>
-			</Rule>
-			<Rule Name="setuidProgram">
-				<Parameters>
-					<Parameter Type="Entity">Host</Parameter>
-					<Parameter Type="Entity">Software</Parameter>
 					<Parameter Type="Entity">Perm</Parameter>
 				</Parameters>
 			</Rule>
-		</Body>
-		<Description>Local exploit</Description>
-		<Technique>Exploitation for Client Execution (DT)
-T1068 - Exploitation for Privilege Escalation (NB)</Technique>
-	</SIR>
-	<SIR Name="execCode">
-		<Parameters>
-			<Parameter Type="IR_Head">Attacker</Parameter>
-			<Parameter Type="IR_Head">Host</Parameter>
-			<Parameter Type="IR_Head">root</Parameter>
-		</Parameters>
-		<Body>
-			<Rule Name="malicious">
+			<Rule Name="canAccessHost">
 				<Parameters>
-					<Parameter Type="Entity">Attacker</Parameter>
-				</Parameters>
-			</Rule>
-			<Rule Name="accessFile">
-				<Parameters>
-					<Parameter Type="Entity">Attacker</Parameter>
+					<Parameter Type="Entity">P1</Parameter>
 					<Parameter Type="Entity">Host</Parameter>
-					<Parameter Type="Entity">write</Parameter>
-					<Parameter Type="Entity">Path</Parameter>
 				</Parameters>
 			</Rule>
 		</Body>
-		<Description>Trojan horse installation</Description>
-		<Technique>Exploitation for Client Execution (DT)</Technique>
-	</SIR>
-	<SIR Name="execCode">
-		<Parameters>
-			<Parameter Type="IR_Head">Attacker</Parameter>
-			<Parameter Type="IR_Head">Host</Parameter>
-			<Parameter Type="IR_Head">User</Parameter>
-		</Parameters>
-		<Body>
-			<Rule Name="malicious">
-				<Parameters>
-					<Parameter Type="Entity">Attacker</Parameter>
-				</Parameters>
-			</Rule>
-			<Rule Name="accessFile">
-				<Parameters>
-					<Parameter Type="Entity">Attacker</Parameter>
-					<Parameter Type="Entity">Host</Parameter>
-					<Parameter Type="Entity">write</Parameter>
-					<Parameter Type="Entity">Path</Parameter>
-				</Parameters>
-			</Rule>
-			<Rule Name="not setuidProgram">
-				<Parameters>
-					<Parameter Type="Entity">Host</Parameter>
-					<Parameter Type="Entity">Path</Parameter>
-				</Parameters>
-			</Rule>
-			<Rule Name="localFileProtection">
-				<Parameters>
-					<Parameter Type="Entity">Host</Parameter>
-					<Parameter Type="Entity">User</Parameter>
-					<Parameter Type="Entity">exec</Parameter>
-					<Parameter Type="Entity">Path</Parameter>
-				</Parameters>
-			</Rule>
-		</Body>
-		<Description></Description>
-		<Technique>Exploitation for Client Execution (DT)</Technique>
-	</SIR>
-	<SIR Name="execCode">
-		<Parameters>
-			<Parameter Type="IR_Head">Attacker</Parameter>
-			<Parameter Type="IR_Head">Host</Parameter>
-			<Parameter Type="IR_Head">Owner</Parameter>
-		</Parameters>
-		<Body>
-			<Rule Name="malicious">
-				<Parameters>
-					<Parameter Type="Entity">Attacker</Parameter>
-				</Parameters>
-			</Rule>
-			<Rule Name="accessFile">
-				<Parameters>
-					<Parameter Type="Entity">Attacker</Parameter>
-					<Parameter Type="Entity">Host</Parameter>
-					<Parameter Type="Entity">write</Parameter>
-					<Parameter Type="Entity">Path</Parameter>
-				</Parameters>
-			</Rule>
-			<Rule Name="setuidProgram">
-				<Parameters>
-					<Parameter Type="Entity">Host</Parameter>
-					<Parameter Type="Entity">Path</Parameter>
-				</Parameters>
-			</Rule>
-			<Rule Name="fileOwner">
-				<Parameters>
-					<Parameter Type="Entity">Host</Parameter>
-					<Parameter Type="Entity">Path</Parameter>
-					<Parameter Type="Entity">Owner</Parameter>
-				</Parameters>
-			</Rule>
-			<Rule Name="localFileProtection">
-				<Parameters>
-					<Parameter Type="Entity">Host</Parameter>
-					<Parameter Type="Entity">User</Parameter>
-					<Parameter Type="Entity">exec</Parameter>
-					<Parameter Type="Entity">Path</Parameter>
-				</Parameters>
-			</Rule>
-		</Body>
-		<Description></Description>
-		<Technique>Exploitation for Client Execution (DT)</Technique>
+		<Description>When a principal is compromised, any machine he has an account on will also be compromised</Description>
+		<Technique>T1078 - Valid Accounts</Technique>
 	</SIR>
 </SIRS>

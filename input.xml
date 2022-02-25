@@ -1,245 +1,33 @@
 <?xml version="1.0" ?>
 <SIRS>
-	<SIR Name="execArbitraryCode">
+	<SIR Name="execCode">
 		<Parameters>
+			<Parameter Type="IR_Head">P1</Parameter>
 			<Parameter Type="IR_Head">Host</Parameter>
-			<Parameter Type="IR_Head">_Perm</Parameter>
+			<Parameter Type="IR_Head">Perm</Parameter>
 		</Parameters>
 		<Body>
-			<Rule Name="execCode">
+			<Rule Name="principalCompromised">
 				<Parameters>
-					<Parameter Type="Entity">Host</Parameter>
-					<Parameter Type="Entity">_Perm</Parameter>
+					<Parameter Type="Entity">P2</Parameter>
+					<Parameter Type="Entity">P1</Parameter>
 				</Parameters>
 			</Rule>
-			<Rule Name="vulExists">
+			<Rule Name="hasAccount">
 				<Parameters>
+					<Parameter Type="Entity">P2</Parameter>
 					<Parameter Type="Entity">Host</Parameter>
-					<Parameter Type="Entity">_</Parameter>
-					<Parameter Type="Entity">Software</Parameter>
-					<Parameter Type="Entity">_</Parameter>
-					<Parameter Type="Entity">execArbitCode</Parameter>
-				</Parameters>
-			</Rule>
-		</Body>
-		<Description>Executing an arbitrary code</Description>
-		<Technique>Exploitation for Client Execution</Technique>
-	</SIR>
-	<SIR Name="systemDown">
-		<Parameters>
-			<Parameter Type="IR_Head">Host</Parameter>
-		</Parameters>
-		<Body>
-			<Rule Name="execCode">
-				<Parameters>
-					<Parameter Type="Entity">Host</Parameter>
-					<Parameter Type="Entity">_Perm2</Parameter>
-				</Parameters>
-			</Rule>
-			<Rule Name="vulExists">
-				<Parameters>
-					<Parameter Type="Entity">Host</Parameter>
-					<Parameter Type="Entity">_</Parameter>
-					<Parameter Type="Entity">Software</Parameter>
-					<Parameter Type="Entity">localExploit</Parameter>
-					<Parameter Type="Entity">Overuse</Parameter>
-				</Parameters>
-			</Rule>
-			<Rule Name="misuseAction">
-				<Parameters>
-					<Parameter Type="Entity">Overuse</Parameter>
-				</Parameters>
-			</Rule>
-		</Body>
-		<Description>Local DOS</Description>
-		<Technique>Endpoint Denial of Service</Technique>
-	</SIR>
-	<SIR Name="systemDown">
-		<Parameters>
-			<Parameter Type="IR_Head">Host</Parameter>
-		</Parameters>
-		<Body>
-			<Rule Name="vulExists">
-				<Parameters>
-					<Parameter Type="Entity">Host</Parameter>
-					<Parameter Type="Entity">_</Parameter>
-					<Parameter Type="Entity">Software</Parameter>
-					<Parameter Type="Entity">remoteExploit</Parameter>
-					<Parameter Type="Entity">Overuse</Parameter>
-				</Parameters>
-			</Rule>
-			<Rule Name="networkServiceInfo">
-				<Parameters>
-					<Parameter Type="Entity">Host</Parameter>
-					<Parameter Type="Entity">Software</Parameter>
-					<Parameter Type="Entity">Protocol</Parameter>
-					<Parameter Type="Entity">Port</Parameter>
 					<Parameter Type="Entity">Perm</Parameter>
 				</Parameters>
 			</Rule>
-			<Rule Name="netAccess">
+			<Rule Name="canAccessHost">
 				<Parameters>
+					<Parameter Type="Entity">P1</Parameter>
 					<Parameter Type="Entity">Host</Parameter>
-					<Parameter Type="Entity">Protocol</Parameter>
-					<Parameter Type="Entity">Port</Parameter>
-				</Parameters>
-			</Rule>
-			<Rule Name="misuseAction">
-				<Parameters>
-					<Parameter Type="Entity">Overuse</Parameter>
 				</Parameters>
 			</Rule>
 		</Body>
-		<Description>Remote DOS on a server program</Description>
-		<Technique>Network Denial of Service</Technique>
-	</SIR>
-	<SIR Name="attackerLocated">
-		<Parameters>
-			<Parameter Type="IR_Head">_host</Parameter>
-		</Parameters>
-		<Body/>
-		<Description></Description>
-		<Technique>Fact</Technique>
-	</SIR>
-	<SIR Name="networkServiceInfo">
-		<Parameters>
-			<Parameter Type="IR_Head">_host</Parameter>
-			<Parameter Type="IR_Head">_program</Parameter>
-			<Parameter Type="IR_Head">_protocol</Parameter>
-			<Parameter Type="IR_Head">_port</Parameter>
-		</Parameters>
-		<Body/>
-		<Description></Description>
-		<Technique>Fact</Technique>
-	</SIR>
-	<SIR Name="canAccessFile">
-		<Parameters>
-			<Parameter Type="IR_Head">_host</Parameter>
-			<Parameter Type="IR_Head">_user</Parameter>
-			<Parameter Type="IR_Head">_path</Parameter>
-		</Parameters>
-		<Body/>
-		<Description></Description>
-		<Technique>Fact</Technique>
-	</SIR>
-	<SIR Name="vulExists">
-		<Parameters>
-			<Parameter Type="IR_Head">_machine</Parameter>
-			<Parameter Type="IR_Head">_vulID</Parameter>
-			<Parameter Type="IR_Head">_program</Parameter>
-			<Parameter Type="IR_Head">_range</Parameter>
-			<Parameter Type="IR_Head">_consequence</Parameter>
-		</Parameters>
-		<Body/>
-		<Description></Description>
-		<Technique>Fact</Technique>
-	</SIR>
-	<SIR Name="installed">
-		<Parameters>
-			<Parameter Type="IR_Head">_host</Parameter>
-			<Parameter Type="IR_Head">_program</Parameter>
-		</Parameters>
-		<Body/>
-		<Description></Description>
-		<Technique>Fact</Technique>
-	</SIR>
-	<SIR Name="sendsFile">
-		<Parameters>
-			<Parameter Type="IR_Head">_hostTX</Parameter>
-			<Parameter Type="IR_Head">_hostRX</Parameter>
-			<Parameter Type="IR_Head">_fileName</Parameter>
-			<Parameter Type="IR_Head">_program</Parameter>
-		</Parameters>
-		<Body/>
-		<Description></Description>
-		<Technique>Fact</Technique>
-	</SIR>
-	<SIR Name="listenForFiles">
-		<Parameters>
-			<Parameter Type="IR_Head">_host</Parameter>
-			<Parameter Type="IR_Head">_program</Parameter>
-		</Parameters>
-		<Body/>
-		<Description></Description>
-		<Technique>Fact</Technique>
-	</SIR>
-	<SIR Name="progRunning">
-		<Parameters>
-			<Parameter Type="IR_Head">_program</Parameter>
-			<Parameter Type="IR_Head">_host</Parameter>
-		</Parameters>
-		<Body/>
-		<Description></Description>
-		<Technique>Fact</Technique>
-	</SIR>
-	<SIR Name="networkHardware">
-		<Parameters>
-			<Parameter Type="IR_Head">_host</Parameter>
-		</Parameters>
-		<Body/>
-		<Description></Description>
-		<Technique>Fact</Technique>
-	</SIR>
-	<SIR Name="notSame">
-		<Parameters>
-			<Parameter Type="IR_Head">H1</Parameter>
-			<Parameter Type="IR_Head">H2</Parameter>
-		</Parameters>
-		<Body>
-			<Rule Name="constraintLib:when">
-				<Parameters>
-					<Parameter Type="Entity">ground</Parameter>
-					<Parameter Type="Entity">H1</Parameter>
-					<Parameter Type="Entity">ground</Parameter>
-					<Parameter Type="Entity">H2</Parameter>
-					<Parameter Type="Entity">H1 \== H2</Parameter>
-				</Parameters>
-			</Rule>
-		</Body>
-		<Description>Not the same check</Description>
-		<Technique>Building Block</Technique>
-	</SIR>
-	<SIR Name="notNetDev">
-		<Parameters>
-			<Parameter Type="IR_Head">H</Parameter>
-		</Parameters>
-		<Body>
-			<Rule Name="constraintLib:when">
-				<Parameters>
-					<Parameter Type="Entity">ground</Parameter>
-					<Parameter Type="Entity">H</Parameter>
-					<Parameter Type="Entity">\+ networkHardware</Parameter>
-					<Parameter Type="Entity">H</Parameter>
-				</Parameters>
-			</Rule>
-		</Body>
-		<Description>Not network device</Description>
-		<Technique>Building Block</Technique>
-	</SIR>
-	<SIR Name="firstHop">
-		<Parameters>
-			<Parameter Type="IR_Head">H1</Parameter>
-			<Parameter Type="IR_Head">H2</Parameter>
-		</Parameters>
-		<Body>
-			<Rule Name="hacl">
-				<Parameters>
-					<Parameter Type="Entity">H1</Parameter>
-					<Parameter Type="Entity">H2</Parameter>
-					<Parameter Type="Entity">_Protocol</Parameter>
-					<Parameter Type="Entity">_Port</Parameter>
-				</Parameters>
-			</Rule>
-			<Rule Name="hacl">
-				<Parameters>
-					<Parameter Type="Entity">H2</Parameter>
-					<Parameter Type="Entity">H1</Parameter>
-					<Parameter Type="Entity">_Protocol</Parameter>
-					<Parameter Type="Entity">_Port</Parameter>
-				</Parameters>
-			</Rule>
-		</Body>
-		<Description>First hop of network traffic</Description>
-		<Technique>Building Block</Technique>
+		<Description>When a principal is compromised, any machine he has an account on will also be compromised</Description>
+		<Technique>T1078 - Valid Accounts</Technique>
 	</SIR>
 </SIRS>
