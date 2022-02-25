@@ -20,31 +20,36 @@ def search_by_technique(technique):
     return dp.TECHNIQUE_DICT.get(technique)
 
 
-def search_by_keywods_in_description(keyword):
+def search_by_keywods_in_description(keywords):
     """
-    :param keyword: keyword
+    :param keyword: keyword or keywords to search in description
     :return: list of row numbers or None if no match is found
     """
+    res = []
+    for keyword in keywords.split():
+        if dp.KEYWORDS_DICT.get(keyword.lower()):
+            res.extend(dp.KEYWORDS_DICT[keyword.lower()])
+    if len(res) == 0:
+        return None
+    return list(set(res))  # remove duplicates
 
-    return dp.KEYWORDS_DICT.get(keyword)
 
-
-def search_ir_by_head(ir_head_name):
+def search_ir_by_head(ir_head):
     """
     :param name of interaction rule head
     :return: list of tuples (row,ir_body) or None if no match is found
     """
 
-    return dp.INTERACTION_RULES_BY_HEAD.get(ir_head_name)
+    return dp.INTERACTION_RULES_BY_HEAD.get(ir_head)
 
 
-def search_by_rule_name(ir_head):
+def search_by_rule_name(ir_head_name):
     """
     :param name of rule head
     :return: list of tuples (row,ir_body) or None if no match is found
     """
 
-    return dp.INTERACTION_RULES_BY_HEAD_NAME.get(ir_head)
+    return dp.INTERACTION_RULES_BY_HEAD_NAME.get(ir_head_name)
 
 
 def help_search(lst, a_list):
@@ -78,7 +83,7 @@ def search(search_sir_head, search_rule, search_in_description, technique_spinne
         sir_head = search_ir_by_head(search_sir_head)
     # rule
     if search_rule != '':
-        rule = search_by_rule_name(search_rule)
+        rule = [tup[0] for tup in search_by_rule_name(search_rule)]
     # description
     if search_in_description != '':
         description = search_by_keywods_in_description(search_in_description)
@@ -96,6 +101,8 @@ def search(search_sir_head, search_rule, search_in_description, technique_spinne
     rows = help_search(rows, description)
     # for technique
     rows = help_search(rows, technique)
+
+    # shouldn't all the rows be added together and crossed to find the intersection?
     rows = sorted(rows)
 
     res = list()
@@ -226,36 +233,40 @@ def create_pddl(rows):
         f.write('/*************************/\n'
                 '/ Predicates Declarations /\n'
                 '/*************************/\n')
-
+        primitives = []
         for row in rows:
             if not dp.ROW_TO_IR.get(row):
                 continue
             ir_head = dp.ROW_TO_IR[row]
-            if dp.PRIMITIVE_DERIVED_DICT[row] == 'primitive':
+            if dp.PRIMITIVE_DERIVED_DICT[row] == 'primitive' and ir_head not in primitives:
                 f.write('primitive(' + ir_head.strip('. ') + ').\n')
+                primitives.append(ir_head)
         f.write('\n')
 
+        derivedes = []
         for row in rows:
             if not dp.ROW_TO_IR.get(row):
                 continue
             ir_head = dp.ROW_TO_IR[row]
-            if dp.PRIMITIVE_DERIVED_DICT[row] == 'derived':
+            if dp.PRIMITIVE_DERIVED_DICT[row] == 'derived' and ir_head not in derivedes:
                 f.write('derived(' + ir_head.strip() + ').\n')
+                derivedes.append(ir_head)
         f.write('\nmeta(attackGoal(_)).\n\n')
 
         f.write('/*******************************************/\n'
                 '/****      Tabling Predicates          *****/\n'
                 '/* All derived predicates should be tabled */''\n'
                 '/*******************************************/\n')
-
+        derivedes= []
         for row in rows:
             if not dp.ROW_TO_IR.get(row):
                 continue
             ir_head = dp.ROW_TO_IR[row]
             ir_head_parts = re.split("\(|,|\)", ir_head)
             ir_head_name = ir_head_parts[0]
-            if dp.PRIMITIVE_DERIVED_DICT[row] == 'derived':
-                f.write(':- table' + ir_head_name.strip('. ') + '/1.\n')
+            if dp.PRIMITIVE_DERIVED_DICT[row] == 'derived' and ir_head_name not in derivedes:
+                f.write(':- table ' + ir_head_name.strip('. ') + '/1.\n')
+                derivedes.append(ir_head_name)
         f.write('\n')
         f.write('/*******************/\n'
                 '/ Interaction Rules /\n'
@@ -282,17 +293,16 @@ def create_pddl(rows):
 
 
 def empty_dicts():
-    dp.INTERACTION_RULES_BY_HEAD = {}  # {ir_head: [(ROW, predicates),()]}
-    dp.INTERACTION_RULES_BY_BODY = {}  # {predicate: [(row, ir_head),()]}
-    dp.INTERACTION_RULES_BY_HEAD_NAME = {}  # {ir_head_name: [(ROW, predicates),()]}
-    dp.INTERACTION_RULES_BY_BODY_NAME = {}  # {ir_body_name: INTERACTION_RULES_BY_BODY[ir_body]}
-    dp.ROW_TO_IR = {}  # {row: ir_head}
-    dp.KEYWORDS_DICT = {}  # {keyword.lower(): [row]}
-    dp.TECHNIQUE_DICT = {}  # {technique: [row_number]}
-    dp.PRIMITIVE_DERIVED_DICT = {}  # {row: ir_type}
-
-    dp.explanations = {}  # {row, description}
-    dp.xtechniques = {}  # {row, technique}
+    dp.INTERACTION_RULES_BY_HEAD = {}
+    dp.INTERACTION_RULES_BY_BODY = {}
+    dp.INTERACTION_RULES_BY_HEAD_NAME = {}
+    dp.INTERACTION_RULES_BY_BODY_NAME = {}
+    dp.ROW_TO_IR = {}
+    dp.KEYWORDS_DICT = {}
+    dp.TECHNIQUE_DICT = {}
+    dp.PRIMITIVE_DERIVED_DICT = {}
+    dp.explanations = {}
+    dp.techniques = {}
 
 def read_from_xml(path):
     dp.read_from_xml(path)

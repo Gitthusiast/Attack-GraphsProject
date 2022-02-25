@@ -15,6 +15,7 @@ PRIMITIVE_DERIVED_DICT = {}  # {row: ir_type}
 explanations = {}  # {row, description}
 techniques = {}  # {row, technique}
 
+
 def create_ir_dict(dfMulVAl):
     """
     This function creates a dictionary {interaction_rule_head: (row_number, ir_body)}
@@ -33,19 +34,16 @@ def create_ir_dict(dfMulVAl):
             techniques.update({row: dfMulVAl['MITRE Enterprise Technique'][row].strip()})
         else:
             techniques.update({row: ''})
-        if isinstance(IR, str):
+        if not pd.isna(IR):
 
+            PRIMITIVE_DERIVED_DICT.update({row: 'derived'})
             splited_ir = IR.split(":-")
-
+            ir_head = splited_ir[0]
             if len(splited_ir[0].split('\n')) >= 2 and splited_ir[0].split('\n')[0][0] == '%':
 
-                ir_head = splited_ir[0].split('\n')[1]
-            else:
-                if splited_ir[0][-1] == ' ':
-                    ir_head = splited_ir[0][:-1]
-                else:
-                    ir_head = splited_ir[0]
+                ir_head = ir_head.split('\n')[1]
 
+            ir_head = ir_head.strip()
             ROW_TO_IR.update({row: ir_head})
 
             if len(splited_ir) >= 2:  # check body
@@ -76,11 +74,13 @@ def create_ir_dict(dfMulVAl):
         else:
             ROW_TO_IR.update({row: dfMulVAl['Predicate'][row]})
             add_to_ir_head_dict(dfMulVAl['Predicate'][row], row, None)
+            PRIMITIVE_DERIVED_DICT.update({row: 'primitive'})
 
-        if pd.isna(dfMulVAl['Primitive/Derived'][row]):
-            PRIMITIVE_DERIVED_DICT.update({row: None})
-        else:
+        if not pd.isna(dfMulVAl['Primitive/Derived'][row]):
             PRIMITIVE_DERIVED_DICT.update({row: dfMulVAl['Primitive/Derived'][row].lower()})
+        if not PRIMITIVE_DERIVED_DICT.get(row):
+            PRIMITIVE_DERIVED_DICT.update({row: None})
+    print()
 
 
 def add_to_ir_head_dict(ir_head, row, predicates):
@@ -106,6 +106,7 @@ def create_ir_name_dict():
             INTERACTION_RULES_BY_BODY_NAME.update({ir_body_name: INTERACTION_RULES_BY_BODY[ir_body]})
         else:
             INTERACTION_RULES_BY_BODY_NAME[ir_body_name].extend(INTERACTION_RULES_BY_BODY[ir_body])
+    print()
 
 
 def create_explanation_keyword_dict(explanations):
@@ -174,7 +175,10 @@ def read_from_xml(path):
                         ir_head = ir_head + '(' + ','.join(head_entities) + ')'
 
                 elif ir_part.localName == 'Body':
-
+                    if len(ir_part.childNodes) != 0:
+                        PRIMITIVE_DERIVED_DICT.update({sir_num: 'derived'})
+                    else:
+                        PRIMITIVE_DERIVED_DICT.update({sir_num: 'primitive'})
                     predicates = []
                     for rule in ir_part.childNodes:
                         body_entities = []
