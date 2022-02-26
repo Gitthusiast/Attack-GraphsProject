@@ -81,12 +81,12 @@ def search(search_sir_head, search_rule, search_in_description, technique_spinne
     if search_in_description != '':
         description = search_by_keywods_in_description(search_in_description)
     # technique
-    if technique_spinner != '':
+    if technique_spinner != 'technique':
         technique = search_by_technique(technique_spinner)
 
     rows = set()
     # for sir head
-    if sir_head != None:
+    if sir_head is not None:
         rows.update([tup[0] for tup in sir_head])
     # for rule
     rows = help_search(rows, rule)
@@ -95,33 +95,33 @@ def search(search_sir_head, search_rule, search_in_description, technique_spinne
     # for technique
     rows = help_search(rows, technique)
     rows = sorted(rows)
+    if search_sir_head == '' and search_rule == '' and search_in_description == '' and technique_spinner == 'technique':
+        rows = dp.ROW_TO_IR.keys()
 
     res = list()
     for row in rows:
         expla = dp.explanations.get(row)
-        if expla == None:
+        if expla is None:
             expla = ''
         ir_head = dp.ROW_TO_IR.get(row)
         ir = ''
-        if ir_head == None:
+        if ir_head is None:
             ir = ''
         else:
             ir = ir_head + ":- "
             ir_bodies = search_ir_by_head(ir_head)
             for ir_body in ir_bodies:
-                if ir_body[1] == None:
+                if ir_body[1] is None:
                     break
                 elif len(ir_body[1]) != 1:
                     ir += ir_body[1][1][1] + ", "
-            if ir != "":
+            if ir is not "":
                 ir = ir[:-2]
                 ir += '.'
         techni = dp.techniques.get(row)
-        if techni == None:
+        if techni is None:
             techni = ""
         res.append((expla, ir, techni))
-    # print(res)
-    # print(rows)
     return res, rows
 
 
@@ -221,9 +221,9 @@ def create_pddl(rows):
     :return:
     """
     with open('pddl.txt', 'w') as f:
-        f.write('/*********/\n'
+        f.write('/*************************/\n'
                 '/ Predicates Declarations /\n'
-                '/*********/\n')
+                '/*************************/\n')
 
         for row in rows:
             if not dp.ROW_TO_IR.get(row):
@@ -241,10 +241,9 @@ def create_pddl(rows):
                 f.write('derived(' + ir_head.strip() + ').\n')
         f.write('\nmeta(attackGoal(_)).\n\n')
 
-        f.write('/***************/\n'
-                '/**      Tabling Predicates          ***/\n'
-                '/* All derived predicates should be tabled */''\n'
-                '/***************/\n')
+        f.write('/*******************/\n'
+                '/ Interaction Rules /\n'
+                '/*******************/\n')
 
         for row in rows:
             if not dp.ROW_TO_IR.get(row):
@@ -278,12 +277,10 @@ def create_pddl(rows):
                         ir_to_wirte += 'rule_desc(\'' + dp.explanations[row].strip('. ') + '\', 1.0)).\n\n'
                     f.write(ir_to_wirte)
 
-# if __name__ == "__main__":
-#     path = "MulVAL to MITRE-for IR Manager.xlsx"
-#     dfMulVAl = pd.read_excel(path)
-#     create_data_structures(dfMulVAl)
-#     rows = dp.ROW_TO_IR.keys()
-    # create_xml(rows)
+
+def read_from_xml(path):
+    dp.read_from_xml(path)
+
 
 def build():
     path = "MulVAL to MITRE-for IR Manager.xlsx"
