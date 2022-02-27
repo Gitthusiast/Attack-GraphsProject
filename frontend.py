@@ -14,7 +14,6 @@ import backend as b
 import DataPreperation as DataPrep
 from kivymd.uix.datatables import MDDataTable
 from kivy.metrics import dp
-from kivymd.uix.screen import Screen
 
 
 class grid(MDApp):
