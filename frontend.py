@@ -14,6 +14,7 @@ import backend as b
 import DataPreperation as DataPrep
 from kivymd.uix.datatables import MDDataTable
 from kivy.metrics import dp
+from kivy.uix.screenmanager import ScreenManager, Screen
 
 
 class grid(MDApp):
@@ -28,7 +29,7 @@ class grid(MDApp):
         self.technique_spinner = None
         self.page_layout = None
         self.input_layout = None
-        self.data_table = None
+        # self.data_table = None
 
     # def create_datatables(self):
     #     data_tables = MDDataTable(
@@ -41,6 +42,7 @@ class grid(MDApp):
     #     return data_tables
 
     def build(self):
+
         page_layout = GridLayout(cols=1)  # pos_hint ={'center_x':.43, 'center_y':.6})
         input_layout = GridLayout(cols=2)
         buttons_layout = GridLayout(cols=5, spacing=10, padding=[100, 30, 0, 0])
@@ -134,18 +136,18 @@ class grid(MDApp):
         import_XML.bind(on_press=self.read_from_file)
         buttons_layout.add_widget(import_XML)
 
-        self.data_table = MDDataTable(
-            column_data=[
-                ("Description", dp(50)),
-                ("Interaction Rule Set", dp(50)),
-                ("Technique", dp(50))
-            ],
-            use_pagination=True,
-            rows_num=2
-        )
+        # self.data_table = MDDataTable(
+        #     column_data=[
+        #         ("Description", dp(50)),
+        #         ("Interaction Rule Set", dp(50)),
+        #         ("Technique", dp(50))
+        #     ],
+        #     use_pagination=True,
+        #     rows_num=2
+        # )
         page_layout.add_widget(input_layout)
         page_layout.add_widget(buttons_layout)
-        page_layout.add_widget(self.data_table)
+        # page_layout.add_widget(self.data_table)
         b.build('MulVAL to MITRE-for IR Manager.xlsx')
         return page_layout
 
