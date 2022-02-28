@@ -209,7 +209,7 @@ class grid(Widget):
 
 
 """
-@:return main that started the application
+@:return main that started the application.
 """
 if __name__ == "__main__":
     app().run()
