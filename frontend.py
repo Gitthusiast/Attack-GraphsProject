@@ -23,11 +23,13 @@ kv = Builder.load_file("kivy.kv")
 class app(App):
 
     def build(self):
+        b.build('MulVAL to MITRE-for IR Manager.xlsx')
         Window.clearcolor = (240 / 250, 240 / 250, 240 / 250, 240 / 250)
         return grid()
 
 
 class Popups(FloatLayout):
+    res_data = ListProperty([])
     pass
 
 
@@ -41,7 +43,6 @@ class grid(Widget):
     xml_file_path = None
     page_layout = None
     input_layout = None
-    data_items = ListProperty([])
     # self.data_table = None
 
     # def create_datatables(self):
@@ -166,14 +167,26 @@ class grid(Widget):
 
     def show_popup(self):
         show = Popups()
-        pop_window = Popup(title="Results", content=show, size_hint=(0.5,0.6))
+        pop_window = Popup(title="Results", content=show)
         pop_window.open()
 
     def perform_results(self):
-        # self.data_items.extend([{'text': 'a'}, {'text': 'a'}, {'text': 'a'}, {'text': 'a'}])
 
         results = b.search(self.search_sir_head.text, self.search_rule.text, self.search_in_description.text,
                            self.technique_spinner.text)[0]
+        lst = []
+        lst.extend([{'text': 'Description:\n'}])
+        lst.extend([{'text': 'Interaction Rule Set:\n'}])
+        lst.extend([{'text': 'Techniques:\n'}])
+        for res in results:
+            for line in res:
+                s = ''
+                for word_count, w in enumerate(line.split(), 1):
+                    s += ' ' + w
+                    if word_count % 4 == 0:
+                        s += '\n'
+                lst.extend([{'text': s}])
+        Popups.res_data = lst
         print(results)
         # self.data_table.row_data = results
         self.show_popup()

@@ -56,29 +56,20 @@
                 on_press: root.perform_results()
                 background_color: 0.3, 0.4, 0.5, 0.7
 
-            Label:
-                text: "[color=ff000]\n\n\nresult: [/color]"
-                markup: True
-
 <Popups>:
 
-    GridLayout:
-		cols:3
-		size: root.width - 200, root.height - 140
-        pos: 50, 150
-
-        Label:
-            text: "[color=ff000] \n\n\n Search by SIR head name: [/color]"
-            markup: True
-
     BoxLayout:
+        pos: 0, 0
         RecycleView:
             viewclass: 'Label'
-            data: [{'text': str(x)} for x in range(100)]
+            data: root.res_data
             RecycleGridLayout:
                 cols: 3
                 size_hint: 1, None
-                default_size: None, dp(20)
+                default_size: None, dp(150)
                 default_size_hint: 1, None
+                size_hint_y: None
                 height: self.minimum_height
                 width: self.minimum_width
+                halign: 'center'
+                valign: 'middle'
