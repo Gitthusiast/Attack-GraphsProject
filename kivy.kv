@@ -4,6 +4,7 @@
     search_rule: search_rule
     technique_spinner: technique_spinner
     search_in_description: search_in_description
+    xml_file_path: xml_file_path
 
     GridLayout:
 		cols:1
@@ -51,10 +52,44 @@
                 size_hint: (0.7, None)
                 height: 35
 
+        GridLayout:
+            cols: 3
+            padding: 5, 80, 0, 0
+            spacing: 10
+
             Button:
                 text: "Show results"
                 on_press: root.perform_results()
                 background_color: 0.3, 0.4, 0.5, 0.7
+                size_hint: (0.8, None)
+                height: 35
+
+            Button:
+                text: "export pddl"
+                on_press: root.create_pddl()
+                background_color: 0.3, 0.4, 0.5, 0.7
+                size_hint: (0.5, None)
+                height: 35
+
+            Button:
+                text: "export XML"
+                on_press: root.create_XML()
+                background_color: 0.3, 0.4, 0.5, 0.7
+                size_hint: (0.5, None)
+                height: 35
+
+            TextInput:
+                id: xml_file_path
+                multiline:True
+                size_hint: (0.1, None)
+                height: 35
+
+            Button:
+                text: "import file"
+                on_press: root.read_from_file()
+                background_color: 0.3, 0.4, 0.5, 0.7
+                size_hint: (0.5, None)
+                height: 35
 
 <Popups>:
 
@@ -66,7 +101,7 @@
             RecycleGridLayout:
                 cols: 3
                 size_hint: 1, None
-                default_size: None, dp(150)
+                default_size: None, dp(250)
                 default_size_hint: 1, None
                 size_hint_y: None
                 height: self.minimum_height
