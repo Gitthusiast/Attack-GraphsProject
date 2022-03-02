@@ -9,6 +9,7 @@ def create_data_structures(dfMulVAl):
     dp.create_ir_name_dict()
     dp.create_explanation_keyword_dict(dfMulVAl['Explanation'])
     dp.create_MITRE_technique_dict(dfMulVAl['MITRE Enterprise Technique'])
+    print()
 
 
 def search_by_technique(technique):
@@ -102,7 +103,9 @@ def search(search_sir_head, search_rule, search_in_description, technique_spinne
     # for technique
     rows = help_search(rows, technique)
 
-    # shouldn't all the rows be added together and crossed to find the intersection?
+    if search_sir_head == '' and search_rule == '' and search_in_description == '' and technique_spinner == 'technique':
+        rows = dp.ROW_TO_IR.keys()
+
     rows = sorted(rows)
 
     res = list()
@@ -115,16 +118,21 @@ def search(search_sir_head, search_rule, search_in_description, technique_spinne
         if ir_head is None:
             ir = ''
         else:
-            ir = ir_head + ":- "
+            ir_body_string = ":- "
             ir_bodies = search_ir_by_head(ir_head)
             for ir_body in ir_bodies:
                 if ir_body[1] is None:
-                    break
-                elif len(ir_body[1]) != 1:
-                    ir += ir_body[1][1][1] + ", "
-            if ir != "":
-                ir = ir[:-2]
-                ir += '.'
+                    continue
+                elif ir_body[0] == row:
+                    for body_part in ir_body[1]:
+                        ir_body_string += body_part[1] + ', '
+            if ir_body_string != ":- ":
+                ir_body_string = ir_body_string[:-2]  # to remove the last comma
+                ir_body_string += ir_body_string + '.'
+                ir = ir_head + ir_body_string
+            else:
+                ir = ir_head + '.'
+
         techni = dp.techniques.get(row)
         if techni is None:
             techni = ""
