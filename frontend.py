@@ -59,13 +59,17 @@ class grid(Widget):
         lst.extend([{'text': 'Interaction Rule Set:\n'}])
         lst.extend([{'text': 'Techniques:\n'}])
         for res in results:
-            for line in res:
+            for type, line in enumerate(res):
                 s = ''
                 for word_count, w in enumerate(line.split(), 1):
-                    s += ' ' + w
-                    if word_count % 4 == 0:
-                        s += '\n'
-                lst.extend([{'text': s}])
+
+                    if type == 1 and word_count % 3 == 0:
+                        s += '\n' + w
+                    elif type != 1 and word_count % 4 == 0:
+                        s += '\n' + w
+                    else:
+                        s += ' ' + w
+                lst.extend([{'text': s[1:]}])
         Popups.res_data = lst
         print(results)
         # self.data_table.row_data = results
