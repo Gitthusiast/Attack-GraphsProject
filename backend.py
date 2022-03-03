@@ -128,7 +128,7 @@ def search(search_sir_head, search_rule, search_in_description, technique_spinne
                         ir_body_string += body_part[1] + ', '
             if ir_body_string != ":- ":
                 ir_body_string = ir_body_string[:-2]  # to remove the last comma
-                ir_body_string += ir_body_string + '.'
+                ir_body_string += '.'
                 ir = ir_head + ir_body_string
             else:
                 ir = ir_head + '.'
