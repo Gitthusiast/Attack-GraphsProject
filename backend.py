@@ -103,7 +103,8 @@ def search(search_sir_head, search_rule, search_in_description, technique_spinne
     # for technique
     rows = help_search(rows, technique)
 
-    if search_sir_head == '' and search_rule == '' and search_in_description == '' and technique_spinner == 'technique':
+    if search_sir_head == '' and search_rule == '' and search_in_description == '' and \
+            (technique_spinner == 'technique' or technique_spinner == ''):
         rows = dp.ROW_TO_IR.keys()
 
     rows = sorted(rows)
